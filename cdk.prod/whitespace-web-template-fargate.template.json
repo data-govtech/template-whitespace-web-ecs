@@ -3,10 +3,10 @@
     "EcsCluster97242B84": {
       "Type": "AWS::ECS::Cluster",
       "Properties": {
-        "ClusterName": "whitespace-app-web-cluster"
+        "ClusterName": "whitespace-web-template-cluster"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/EcsCluster/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/EcsCluster/Resource"
       }
     },
     "taskrole5938D619": {
@@ -74,11 +74,11 @@
             ]
           }
         ],
-        "PermissionsBoundary": "arn:aws:iam::904766938874:policy/GCCIAccountBoundary",
-        "RoleName": "whitespace-app-web-task-role"
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary",
+        "RoleName": "whitespace-web-template-task-role"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/task-role/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/task-role/Resource"
       }
     },
     "executionroleD9A39BE6": {
@@ -96,11 +96,11 @@
           ],
           "Version": "2012-10-17"
         },
-        "PermissionsBoundary": "arn:aws:iam::904766938874:policy/GCCIAccountBoundary",
-        "RoleName": "whitespace-app-web-execution-role"
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary",
+        "RoleName": "whitespace-web-template-execution-role"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/execution-role/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/execution-role/Resource"
       }
     },
     "executionroleDefaultPolicy497F11A3": {
@@ -136,9 +136,9 @@
                     {
                       "Ref": "AWS::Partition"
                     },
-                    ":ecr:ap-southeast-1:904766938874:repository/",
+                    ":ecr:ap-southeast-1:305326993135:repository/",
                     {
-                      "Fn::ImportValue": "whitespace-app-web-EcrRepositoryName"
+                      "Fn::ImportValue": "whitespace-web-template-EcrRepositoryName"
                     }
                   ]
                 ]
@@ -173,7 +173,7 @@
         ]
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/execution-role/DefaultPolicy/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/execution-role/DefaultPolicy/Resource"
       }
     },
     "FargateTaskB0B28A1D": {
@@ -196,13 +196,13 @@
               "Fn::Join": [
                 "",
                 [
-                  "904766938874.dkr.ecr.ap-southeast-1.",
+                  "305326993135.dkr.ecr.ap-southeast-1.",
                   {
                     "Ref": "AWS::URLSuffix"
                   },
                   "/",
                   {
-                    "Fn::ImportValue": "whitespace-app-web-EcrRepositoryName"
+                    "Fn::ImportValue": "whitespace-web-template-EcrRepositoryName"
                   },
                   ":latest"
                 ]
@@ -214,7 +214,7 @@
                 "awslogs-group": {
                   "Ref": "FargateTaskcontainerLogGroupBC85644B"
                 },
-                "awslogs-stream-prefix": "whitespace-app-web-fargate-logs",
+                "awslogs-stream-prefix": "whitespace-web-template-fargate-logs",
                 "awslogs-region": "ap-southeast-1"
               }
             },
@@ -235,7 +235,7 @@
             "Arn"
           ]
         },
-        "Family": "whitespace-app-web-fargate-task",
+        "Family": "whitespace-web-template-fargate-task",
         "Memory": "1024",
         "NetworkMode": "awsvpc",
         "RequiresCompatibilities": [
@@ -249,7 +249,7 @@
         }
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/FargateTask/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/FargateTask/Resource"
       }
     },
     "FargateTaskcontainerLogGroupBC85644B": {
@@ -257,13 +257,13 @@
       "UpdateReplacePolicy": "Retain",
       "DeletionPolicy": "Retain",
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/FargateTask/container/LogGroup/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/FargateTask/container/LogGroup/Resource"
       }
     },
     "ecssecuritygroupE15CB9D2": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "GroupDescription": "whitespace-app-web-fargate/ecs-security-group",
+        "GroupDescription": "whitespace-web-template-fargate/ecs-security-group",
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -271,13 +271,13 @@
             "IpProtocol": "-1"
           }
         ],
-        "VpcId": "vpc-ff62c39b"
+        "VpcId": "vpc-12345"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/ecs-security-group/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/ecs-security-group/Resource"
       }
     },
-    "ecssecuritygroupfromwhitespaceappwebfargatealbSecurityGroup4D3FF503801F655D99": {
+    "ecssecuritygroupfromwhitespacewebtemplatefargatealbSecurityGroupEF821E1580DB37AB63": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "IpProtocol": "tcp",
@@ -298,10 +298,10 @@
         "ToPort": 80
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/ecs-security-group/from whitespaceappwebfargatealbSecurityGroup4D3FF503:80"
+        "aws:cdk:path": "whitespace-web-template-fargate/ecs-security-group/from whitespacewebtemplatefargatealbSecurityGroupEF821E15:80"
       }
     },
-    "ecssecuritygroupfromwhitespaceappwebfargatealbsecuritygroupAE58AAD5804C42A0DE": {
+    "ecssecuritygroupfromwhitespacewebtemplatefargatealbsecuritygroup845591DC801E559027": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "IpProtocol": "tcp",
@@ -322,10 +322,10 @@
         "ToPort": 80
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/ecs-security-group/from whitespaceappwebfargatealbsecuritygroupAE58AAD5:80"
+        "aws:cdk:path": "whitespace-web-template-fargate/ecs-security-group/from whitespacewebtemplatefargatealbsecuritygroup845591DC:80"
       }
     },
-    "ecssecuritygroupfromwhitespaceappwebfargatealbsecuritygroupAE58AAD5ALLPORTS180021F9": {
+    "ecssecuritygroupfromwhitespacewebtemplatefargatealbsecuritygroup845591DCALLPORTSC815EA8D": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties": {
         "IpProtocol": "tcp",
@@ -346,7 +346,7 @@
         "ToPort": 65535
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/ecs-security-group/from whitespaceappwebfargatealbsecuritygroupAE58AAD5:ALL PORTS"
+        "aws:cdk:path": "whitespace-web-template-fargate/ecs-security-group/from whitespacewebtemplatefargatealbsecuritygroup845591DC:ALL PORTS"
       }
     },
     "fargateserviceService16837280": {
@@ -384,9 +384,8 @@
               }
             ],
             "Subnets": [
-              "subnet-fcf1678a",
-              "subnet-e16f0e85",
-              "subnet-805b05c6"
+              "subnet-0fe801c8d8de85501",
+              "subnet-088dccca387a3fa3d"
             ]
           }
         },
@@ -399,7 +398,7 @@
         "albalblistenerA15D02F3"
       ],
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/fargate-service/Service"
+        "aws:cdk:path": "whitespace-web-template-fargate/fargate-service/Service"
       }
     },
     "fargateserviceTaskCountTarget0BC3257A": {
@@ -433,7 +432,7 @@
               {
                 "Ref": "AWS::Partition"
               },
-              ":iam::904766938874:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+              ":iam::305326993135:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
             ]
           ]
         },
@@ -441,13 +440,13 @@
         "ServiceNamespace": "ecs"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/fargate-service/TaskCount/Target/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/fargate-service/TaskCount/Target/Resource"
       }
     },
     "fargateserviceTaskCountTargetScaleUpMem59CB9038": {
       "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
       "Properties": {
-        "PolicyName": "whitespaceappwebfargatefargateserviceTaskCountTargetScaleUpMemABA27687",
+        "PolicyName": "whitespacewebtemplatefargatefargateserviceTaskCountTargetScaleUpMemD10F27E4",
         "PolicyType": "TargetTrackingScaling",
         "ScalingTargetId": {
           "Ref": "fargateserviceTaskCountTarget0BC3257A"
@@ -462,13 +461,13 @@
         }
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/fargate-service/TaskCount/Target/ScaleUpMem/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/fargate-service/TaskCount/Target/ScaleUpMem/Resource"
       }
     },
     "fargateserviceTaskCountTargetScaleUpCPU72368747": {
       "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
       "Properties": {
-        "PolicyName": "whitespaceappwebfargatefargateserviceTaskCountTargetScaleUpCPU90580AB5",
+        "PolicyName": "whitespacewebtemplatefargatefargateserviceTaskCountTargetScaleUpCPU450B0BC7",
         "PolicyType": "TargetTrackingScaling",
         "ScalingTargetId": {
           "Ref": "fargateserviceTaskCountTarget0BC3257A"
@@ -483,7 +482,7 @@
         }
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/fargate-service/TaskCount/Target/ScaleUpCPU/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/fargate-service/TaskCount/Target/ScaleUpCPU/Resource"
       }
     },
     "alb8A8B13C2": {
@@ -511,28 +510,20 @@
           }
         ],
         "Subnets": [
-          "subnet-fcf1678a",
-          "subnet-e16f0e85",
-          "subnet-805b05c6"
+          "p-12345",
+          "p-67890"
         ],
         "Type": "application"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/alb/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/alb/Resource"
       }
     },
     "albSecurityGroup49866104": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "GroupDescription": "Automatically created Security Group for ELB whitespaceappwebfargatealbB5E33F31",
+        "GroupDescription": "Automatically created Security Group for ELB whitespacewebtemplatefargatealb1022EDD8",
         "SecurityGroupIngress": [
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "Allow from anyone on port 443",
-            "FromPort": 443,
-            "IpProtocol": "tcp",
-            "ToPort": 443
-          },
           {
             "CidrIp": "0.0.0.0/0",
             "Description": "Allow from anyone on port 80",
@@ -541,13 +532,13 @@
             "ToPort": 80
           }
         ],
-        "VpcId": "vpc-ff62c39b"
+        "VpcId": "vpc-12345"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/alb/SecurityGroup/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/alb/SecurityGroup/Resource"
       }
     },
-    "albSecurityGrouptowhitespaceappwebfargateecssecuritygroup5A772D2780F040F857": {
+    "albSecurityGrouptowhitespacewebtemplatefargateecssecuritygroup643C3B3580D8A77EC3": {
       "Type": "AWS::EC2::SecurityGroupEgress",
       "Properties": {
         "GroupId": {
@@ -568,7 +559,7 @@
         "ToPort": 80
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/alb/SecurityGroup/to whitespaceappwebfargateecssecuritygroup5A772D27:80"
+        "aws:cdk:path": "whitespace-web-template-fargate/alb/SecurityGroup/to whitespacewebtemplatefargateecssecuritygroup643C3B35:80"
       }
     },
     "albalblistenerA15D02F3": {
@@ -585,21 +576,11 @@
         "LoadBalancerArn": {
           "Ref": "alb8A8B13C2"
         },
-        "Certificates": [
-          {
-            "CertificateArn": {
-              "Fn::GetAtt": [
-                "certificateCertificateRequestorResourceFD86DD58",
-                "Arn"
-              ]
-            }
-          }
-        ],
-        "Port": 443,
-        "Protocol": "HTTPS"
+        "Port": 80,
+        "Protocol": "HTTP"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/alb/alb-listener/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/alb/alb-listener/Resource"
       }
     },
     "albRedirect80To44345967F5A": {
@@ -622,7 +603,7 @@
         "Protocol": "HTTP"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/alb/Redirect80To443/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/alb/Redirect80To443/Resource"
       }
     },
     "targetgrouphttp79FCCF53": {
@@ -633,147 +614,16 @@
         "Port": 80,
         "Protocol": "HTTP",
         "TargetType": "ip",
-        "VpcId": "vpc-ff62c39b"
+        "VpcId": "vpc-12345"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/target-group-http/Resource"
-      }
-    },
-    "certificateCertificateRequestorFunctionServiceRoleA4FA97BB": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com"
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition"
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-              ]
-            ]
-          }
-        ],
-        "PermissionsBoundary": "arn:aws:iam::904766938874:policy/GCCIAccountBoundary"
-      },
-      "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/certificate/CertificateRequestorFunction/ServiceRole/Resource"
-      }
-    },
-    "certificateCertificateRequestorFunctionServiceRoleDefaultPolicy8ED55FEE": {
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "acm:RequestCertificate",
-                "acm:DescribeCertificate",
-                "acm:DeleteCertificate",
-                "acm:AddTagsToCertificate"
-              ],
-              "Effect": "Allow",
-              "Resource": "*"
-            },
-            {
-              "Action": "route53:GetChange",
-              "Effect": "Allow",
-              "Resource": "*"
-            },
-            {
-              "Action": "route53:changeResourceRecordSets",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition"
-                    },
-                    ":route53:::hostedzone/Z0999657276FVA0PWALMK"
-                  ]
-                ]
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        },
-        "PolicyName": "certificateCertificateRequestorFunctionServiceRoleDefaultPolicy8ED55FEE",
-        "Roles": [
-          {
-            "Ref": "certificateCertificateRequestorFunctionServiceRoleA4FA97BB"
-          }
-        ]
-      },
-      "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/certificate/CertificateRequestorFunction/ServiceRole/DefaultPolicy/Resource"
-      }
-    },
-    "certificateCertificateRequestorFunction5D4BA95F": {
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-904766938874-ap-southeast-1",
-          "S3Key": "7af6295e521fd55af94332393ceffb3e866aac4dc4956321f7918f21e72199e4.zip"
-        },
-        "Role": {
-          "Fn::GetAtt": [
-            "certificateCertificateRequestorFunctionServiceRoleA4FA97BB",
-            "Arn"
-          ]
-        },
-        "Handler": "index.certificateRequestHandler",
-        "Runtime": "nodejs14.x",
-        "Timeout": 900
-      },
-      "DependsOn": [
-        "certificateCertificateRequestorFunctionServiceRoleDefaultPolicy8ED55FEE",
-        "certificateCertificateRequestorFunctionServiceRoleA4FA97BB"
-      ],
-      "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/certificate/CertificateRequestorFunction/Resource",
-        "aws:asset:path": "asset.7af6295e521fd55af94332393ceffb3e866aac4dc4956321f7918f21e72199e4",
-        "aws:asset:property": "Code"
-      }
-    },
-    "certificateCertificateRequestorResourceFD86DD58": {
-      "Type": "AWS::CloudFormation::CustomResource",
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "certificateCertificateRequestorFunction5D4BA95F",
-            "Arn"
-          ]
-        },
-        "DomainName": "app.peidu.sg",
-        "HostedZoneId": "Z0999657276FVA0PWALMK",
-        "Region": "ap-southeast-1"
-      },
-      "UpdateReplacePolicy": "Delete",
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/certificate/CertificateRequestorResource/Default"
+        "aws:cdk:path": "whitespace-web-template-fargate/target-group-http/Resource"
       }
     },
     "albsecuritygroup4B3C20F7": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "GroupDescription": "whitespace-app-web-fargate/alb-security-group",
+        "GroupDescription": "whitespace-web-template-fargate/alb-security-group",
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
@@ -790,54 +640,19 @@
             "ToPort": 443
           }
         ],
-        "VpcId": "vpc-ff62c39b"
+        "VpcId": "vpc-12345"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/alb-security-group/Resource"
-      }
-    },
-    "AliasRecrod6229F789": {
-      "Type": "AWS::Route53::RecordSet",
-      "Properties": {
-        "Name": "app.peidu.sg.",
-        "Type": "A",
-        "AliasTarget": {
-          "DNSName": {
-            "Fn::Join": [
-              "",
-              [
-                "dualstack.",
-                {
-                  "Fn::GetAtt": [
-                    "alb8A8B13C2",
-                    "DNSName"
-                  ]
-                }
-              ]
-            ]
-          },
-          "HostedZoneId": {
-            "Fn::GetAtt": [
-              "alb8A8B13C2",
-              "CanonicalHostedZoneID"
-            ]
-          }
-        },
-        "HostedZoneId": "Z0999657276FVA0PWALMK"
-      },
-      "UpdateReplacePolicy": "Delete",
-      "DeletionPolicy": "Delete",
-      "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/AliasRecrod/Resource"
+        "aws:cdk:path": "whitespace-web-template-fargate/alb-security-group/Resource"
       }
     },
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31T227bMAz9lr0r6pKu2Osadx0GFGhhF3tnZMZQI0uGSKUIDP/7KLtOnA7Ykw4P7xet9Xqz0V+//IB3Wpn6cNObEFH3FYM5qBIppGhQ3RMhC9dY36gieOKYDKsiEYf2bFXs/RI/J+4SDyqH7tGQ7gsnDhizcoaPEBtgfAU6PODeess2+GzwmQmewXqMC+7Dt8J4tFPKGVYGHOzcGLYIyUsVFlrdl8FNZeb3JThrTlmc0KDQRF1iF8hyiKctECoXGin8KTS/YkhdNp5xNt/IpNCkaPl01v+f+O2biET/8D9HWobVdVIL5P4gcSBpRGYuac4dxQZ5dL9mpuc1yt7EoZr8Li1eEVK6A2JrXIB6J2G8Ed1Rurm/pH8S3XbUTRu7kpd2VhbpP2xmvNBPhZ2nsRAHJaHY7rMhtuChwagfPP2RUmuh6uKiVg7aXQ26f0zezDcy40HR7QryjZIeT1VkvU3mgDwuUZIx3t1KeyXKfdfTpWZUIQ/DoHyoUb/RzXH9Ta+/y394I2tXUQ7HtqjL6f0LCVYcxCwDAAA="
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31R227CMAz9Ft5DWNG07XGju2gS0qbCD4RgKkOIKydhQlX/fUlLoTBpTz4+5zjxJZPZ9EnejZ7Vjxvr9W5Sa2KQ9cIrvRMFOAqsQeQb+xV8FbzIyTrPQfvE9XojUnkN2sk6N8F54CT38F1xqTwsldu9wgYteiSbDLcMWa/QAg+4U+0C+IBdIz1caGXUyrTP5hSsbwSqvawLMq2vjd9kUB9T2qFGgGZZQEUOPfFxphwIQ2VsfE7lB1OokrnHyT6N2wAdGP3xrP9PfNqSwbk//FtLx2VVVexFpflU8OTiIGjL+M15Ii6hXfAN04Ulx9vEgkVXdxnxioitG+U8akNqvYrPWB21Q5zm5fL9PGqzVusudpUPfRgPaU+eHg/0rrHzNgZp0zTC0hrk1k0O2b3MHuXDaOsQxxxPhnuQRRd/AWt4znGKAgAA"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-app-web-fargate/CDKMetadata/Default"
+        "aws:cdk:path": "whitespace-web-template-fargate/CDKMetadata/Default"
       }
     }
   },
@@ -851,20 +666,20 @@
         ]
       },
       "Export": {
-        "Name": "whitespace-app-web-FargateClusterSecurityGroupId"
+        "Name": "whitespace-web-template-FargateClusterSecurityGroupId"
       }
     },
     "FargateClusterVpcId": {
       "Description": "ID of VPC used by Fargate Cluster",
-      "Value": "vpc-ff62c39b",
+      "Value": "vpc-12345",
       "Export": {
-        "Name": "whitespace-app-web-FargateClusterVpcId"
+        "Name": "whitespace-web-template-FargateClusterVpcId"
       }
     },
     "FargateClusterContainerName": {
       "Value": "container",
       "Export": {
-        "Name": "whitespace-app-web-FargateClusterContainerName"
+        "Name": "whitespace-web-template-FargateClusterContainerName"
       }
     },
     "FargateClusterArn": {
@@ -876,7 +691,7 @@
         ]
       },
       "Export": {
-        "Name": "whitespace-app-web-FargateClusterArn"
+        "Name": "whitespace-web-template-FargateClusterArn"
       }
     },
     "FargateClusterName": {
@@ -885,7 +700,7 @@
         "Ref": "EcsCluster97242B84"
       },
       "Export": {
-        "Name": "whitespace-app-web-FargateClusterName"
+        "Name": "whitespace-web-template-FargateClusterName"
       }
     },
     "FargateServiceName": {
@@ -896,7 +711,7 @@
         ]
       },
       "Export": {
-        "Name": "whitespace-app-web-FargateServiceName"
+        "Name": "whitespace-web-template-FargateServiceName"
       }
     },
     "FargateServiceArn": {
@@ -905,7 +720,7 @@
         "Ref": "fargateserviceService16837280"
       },
       "Export": {
-        "Name": "whitespace-app-web-FargateServiceArn"
+        "Name": "whitespace-web-template-FargateServiceArn"
       }
     }
   },

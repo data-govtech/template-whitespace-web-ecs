@@ -56,7 +56,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
                       {
                         "Ref": "CodeBuildProject4B91CF3F"
                       }
@@ -71,7 +71,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
                       {
                         "Ref": "CodeBuildProject4B91CF3F"
                       },
@@ -98,7 +98,7 @@
                     {
                       "Ref": "AWS::Partition"
                     },
-                    ":codebuild:ap-southeast-1:904766938874:report-group/",
+                    ":codebuild:ap-southeast-1:305326993135:report-group/",
                     {
                       "Ref": "CodeBuildProject4B91CF3F"
                     },
@@ -199,7 +199,7 @@
                 "Fn::Join": [
                   "",
                   [
-                    "904766938874.dkr.ecr.ap-southeast-1.",
+                    "305326993135.dkr.ecr.ap-southeast-1.",
                     {
                       "Ref": "AWS::URLSuffix"
                     },
@@ -378,7 +378,7 @@
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02Nyw6CQAxFv4X9UEWNbg18gAQXrrHUWMApmYfGTObf1VGjq56m954WUCw2MM+27c3m2A2zgGIIwt61OKiGrHiDpCrR1hmPTlUnvfNu8om+96he9UBooKFJLDsx97K1pOwSSo8DubShdHT0PHYQap5oZE21kZ7e3g9Gxe0FQiMjpR+vWcvIeE+hRDGppo/jZ0uJPz7Q8SwyxBiVfhagt7NrsYJiA+ust8y58drxhaB5zweDOC7bDwEAAA=="
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02NSQ7CMAxFz8I+uBQQsERwAKqyYN26RrhDXGUAoSh3BwIIVn6W/3/OIZ9vYDbZVjc7xabLAoohCEdXYadKsuINktqLts54dGp/1gfvRp/oe4/qVQ+EBkoaxbITc99VlpRdwM5jRy5tKA3VnvsGQsEj9aypMNLS2/vBqLgaIJTSU/rxmoX0jPcUShSTavw4fraU+OMT1ReRLsao9LMArc2u+RLyNawmrWWeGq8dDwTlez4AxMgdbQ8BAAA="
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-template-deployment/CDKMetadata/Default"
@@ -405,7 +405,7 @@
             {
               "Ref": "AWS::Partition"
             },
-            ":ecs:ap-southeast-1:904766938874:service/",
+            ":ecs:ap-southeast-1:305326993135:service/",
             {
               "Fn::ImportValue": "whitespace-web-template-FargateServiceName"
             }
@@ -427,7 +427,7 @@
             {
               "Ref": "AWS::Partition"
             },
-            ":ecs:ap-southeast-1:904766938874:cluster/",
+            ":ecs:ap-southeast-1:305326993135:cluster/",
             {
               "Fn::ImportValue": "whitespace-web-template-FargateClusterName"
             }

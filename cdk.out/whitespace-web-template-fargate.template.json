@@ -136,7 +136,7 @@
                     {
                       "Ref": "AWS::Partition"
                     },
-                    ":ecr:ap-southeast-1:904766938874:repository/",
+                    ":ecr:ap-southeast-1:305326993135:repository/",
                     {
                       "Fn::ImportValue": "whitespace-web-template-EcrRepositoryName"
                     }
@@ -196,7 +196,7 @@
               "Fn::Join": [
                 "",
                 [
-                  "904766938874.dkr.ecr.ap-southeast-1.",
+                  "305326993135.dkr.ecr.ap-southeast-1.",
                   {
                     "Ref": "AWS::URLSuffix"
                   },
@@ -383,7 +383,10 @@
                 ]
               }
             ],
-            "Subnets": []
+            "Subnets": [
+              "subnet-0fe801c8d8de85501",
+              "subnet-088dccca387a3fa3d"
+            ]
           }
         },
         "PlatformVersion": "1.4.0",
@@ -429,7 +432,7 @@
               {
                 "Ref": "AWS::Partition"
               },
-              ":iam::904766938874:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+              ":iam::305326993135:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
             ]
           ]
         },
@@ -646,7 +649,7 @@
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31R227CMAz9Ft5DGGgarxvdRZOQNrX8QAimMoS4yoUJVf33OS2FwqQ9+fic48SXqZzO5vJh9Kx+/Fhv9pNakwNZF0HpvcjBU3QaRLa1XzFUMYiMrA8u6pC4Xm9EKq9Be1lnJvoALsk9fFeuVAFWyu9fYYsWA5JNhnuGbFBowQ24c20B7ohdIz0stDJqbdpnM4o2NALVQdY5mdbXxm8yqE8p7VAjQDuZQ0UeA7nTQnkQhkpufEnlh6NYJXOPk33G2wAdHYbTRf+f+LSlA+//8G8tzcuqKu5FpflUDOR5ELQlf3OZyJXQLviO6cLK8W24oOjqriPeENy6UT6gNqQ2a37GataOPM3L9fsla4tW6y52kw99yIe0Z0+PB3rX2GUbg7RpGmFpA3LnJ8fpo5zO5dNo5xHHjk+GB5B5F38BC9rc9ooCAAA="
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31R227CMAz9Ft5DWNG07XGju2gS0qbCD4RgKkOIKydhQlX/fUlLoTBpTz4+5zjxJZPZ9EnejZ7Vjxvr9W5Sa2KQ9cIrvRMFOAqsQeQb+xV8FbzIyTrPQfvE9XojUnkN2sk6N8F54CT38F1xqTwsldu9wgYteiSbDLcMWa/QAg+4U+0C+IBdIz1caGXUyrTP5hSsbwSqvawLMq2vjd9kUB9T2qFGgGZZQEUOPfFxphwIQ2VsfE7lB1OokrnHyT6N2wAdGP3xrP9PfNqSwbk//FtLx2VVVexFpflU8OTiIGjL+M15Ii6hXfAN04Ulx9vEgkVXdxnxioitG+U8akNqvYrPWB21Q5zm5fL9PGqzVusudpUPfRgPaU+eHg/0rrHzNgZp0zTC0hrk1k0O2b3MHuXDaOsQxxxPhnuQRRd/AWt4znGKAgAA"
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-template-fargate/CDKMetadata/Default"
