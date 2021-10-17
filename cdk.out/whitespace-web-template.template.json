@@ -1,0 +1,768 @@
+{
+  "Resources": {
+    "whitespacewebtemplateEcrREpo9F6B4C5F": {
+      "Type": "AWS::ECR::Repository",
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain",
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-EcrREpo/Resource"
+      }
+    },
+    "whitespacewebtemplatekeyD86852AE": {
+      "Type": "AWS::KMS::Key",
+      "Properties": {
+        "KeyPolicy": {
+          "Statement": [
+            {
+              "Action": "kms:*",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::904766938874:root"
+                    ]
+                  ]
+                }
+              },
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::305326993135:role/AWSCodePipelineRole"
+              },
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-key/Resource"
+      }
+    },
+    "whitespacewebtemplatekeyAlias9BC95571": {
+      "Type": "AWS::KMS::Alias",
+      "Properties": {
+        "AliasName": "alias/whitespace-web-template-key",
+        "TargetKeyId": {
+          "Fn::GetAtt": [
+            "whitespacewebtemplatekeyD86852AE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-key/Alias/Resource"
+      }
+    },
+    "CdkBuildProjectRoleE0B6FEB0": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "codebuild.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/CdkBuildProject/Role/Resource"
+      }
+    },
+    "CdkBuildProjectRoleDefaultPolicy3C7ECB00": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CdkBuildProject9382C38D"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CdkBuildProject9382C38D"
+                      },
+                      ":*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "codebuild:CreateReportGroup",
+                "codebuild:CreateReport",
+                "codebuild:UpdateReport",
+                "codebuild:BatchPutTestCases",
+                "codebuild:BatchPutCodeCoverages"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":codebuild:ap-southeast-1:904766938874:report-group/",
+                    {
+                      "Ref": "CdkBuildProject9382C38D"
+                    },
+                    "-*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:Abort*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebtemplatekeyD86852AE",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebtemplatekeyD86852AE",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "CdkBuildProjectRoleDefaultPolicy3C7ECB00",
+        "Roles": [
+          {
+            "Ref": "CdkBuildProjectRoleE0B6FEB0"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/CdkBuildProject/Role/DefaultPolicy/Resource"
+      }
+    },
+    "CdkBuildProject9382C38D": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Artifacts": {
+          "Type": "CODEPIPELINE"
+        },
+        "Environment": {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "Image": "aws/codebuild/standard:5.0",
+          "ImagePullCredentialsType": "CODEBUILD",
+          "PrivilegedMode": true,
+          "Type": "LINUX_CONTAINER"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "CdkBuildProjectRoleE0B6FEB0",
+            "Arn"
+          ]
+        },
+        "Source": {
+          "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": \"npm install\"\n    },\n    \"build\": {\n      \"commands\": [\n        \"npm run build\",\n        \"npm run cdk synth -- -o dist\"\n      ]\n    }\n  },\n  \"artifacts\": {\n    \"base-directory\": \"dist\",\n    \"files\": [\n      \"*.template.json\"\n    ]\n  }\n}",
+          "Type": "CODEPIPELINE"
+        },
+        "EncryptionKey": {
+          "Fn::GetAtt": [
+            "whitespacewebtemplatekeyD86852AE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/CdkBuildProject/Resource"
+      }
+    },
+    "CodeBuildProjectRole2B162745": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "codebuild.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+              ]
+            ]
+          }
+        ],
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/CodeBuildProject/Role/Resource"
+      }
+    },
+    "CodeBuildProjectRoleDefaultPolicy66975658": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CodeBuildProject4B91CF3F"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CodeBuildProject4B91CF3F"
+                      },
+                      ":*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "codebuild:CreateReportGroup",
+                "codebuild:CreateReport",
+                "codebuild:UpdateReport",
+                "codebuild:BatchPutTestCases",
+                "codebuild:BatchPutCodeCoverages"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":codebuild:ap-southeast-1:904766938874:report-group/",
+                    {
+                      "Ref": "CodeBuildProject4B91CF3F"
+                    },
+                    "-*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:Abort*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebtemplatekeyD86852AE",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebtemplatekeyD86852AE",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "CodeBuildProjectRoleDefaultPolicy66975658",
+        "Roles": [
+          {
+            "Ref": "CodeBuildProjectRole2B162745"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/CodeBuildProject/Role/DefaultPolicy/Resource"
+      }
+    },
+    "CodeBuildProject4B91CF3F": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Artifacts": {
+          "Type": "CODEPIPELINE"
+        },
+        "Environment": {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "EnvironmentVariables": [
+            {
+              "Name": "REPOSITORY_URI",
+              "Type": "PLAINTEXT",
+              "Value": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::Select": [
+                        4,
+                        {
+                          "Fn::Split": [
+                            ":",
+                            {
+                              "Fn::GetAtt": [
+                                "whitespacewebtemplateEcrREpo9F6B4C5F",
+                                "Arn"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    ".dkr.ecr.",
+                    {
+                      "Fn::Select": [
+                        3,
+                        {
+                          "Fn::Split": [
+                            ":",
+                            {
+                              "Fn::GetAtt": [
+                                "whitespacewebtemplateEcrREpo9F6B4C5F",
+                                "Arn"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    ".",
+                    {
+                      "Ref": "AWS::URLSuffix"
+                    },
+                    "/",
+                    {
+                      "Ref": "whitespacewebtemplateEcrREpo9F6B4C5F"
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "Name": "CONTAINER_NAME",
+              "Type": "PLAINTEXT",
+              "Value": ""
+            }
+          ],
+          "Image": "aws/codebuild/amazonlinux2-x86_64-standard:3.0",
+          "ImagePullCredentialsType": "CODEBUILD",
+          "PrivilegedMode": true,
+          "Type": "LINUX_CONTAINER"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "CodeBuildProjectRole2B162745",
+            "Arn"
+          ]
+        },
+        "Source": {
+          "BuildSpec": "./buildspec.yml",
+          "Type": "CODEPIPELINE"
+        },
+        "EncryptionKey": {
+          "Fn::GetAtt": [
+            "whitespacewebtemplatekeyD86852AE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/CodeBuildProject/Resource"
+      }
+    },
+    "whitespacewebtemplatepipelineC314EA8E": {
+      "Type": "AWS::CodePipeline::Pipeline",
+      "Properties": {
+        "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
+        "Stages": [
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Source",
+                  "Owner": "ThirdParty",
+                  "Provider": "GitHub",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "Owner": "data-govtech",
+                  "Repo": "whitespace-web-template",
+                  "Branch": "main",
+                  "OAuthToken": "{{resolve:secretsmanager:GITHUB_DATA_GOVTECH:SecretString:::}}",
+                  "PollForSourceChanges": false
+                },
+                "Name": "Github_Source",
+                "OutputArtifacts": [
+                  {
+                    "Name": "Artifact_Source_Github_Source"
+                  }
+                ],
+                "RunOrder": 1
+              }
+            ],
+            "Name": "Source"
+          },
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "ProjectName": {
+                    "Ref": "CdkBuildProject9382C38D"
+                  }
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "Artifact_Source_Github_Source"
+                  }
+                ],
+                "Name": "CdkBuild_Action",
+                "OutputArtifacts": [
+                  {
+                    "Name": "Artifact_Build_CdkBuild_Action"
+                  }
+                ],
+                "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
+                "RunOrder": 1
+              },
+              {
+                "ActionTypeId": {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "ProjectName": {
+                    "Ref": "CodeBuildProject4B91CF3F"
+                  }
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "Artifact_Source_Github_Source"
+                  }
+                ],
+                "Name": "DockerBuild_Action",
+                "OutputArtifacts": [
+                  {
+                    "Name": "Artifact_Build_DockerBuild_Action"
+                  }
+                ],
+                "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
+                "RunOrder": 1
+              }
+            ],
+            "Name": "Build"
+          }
+        ],
+        "ArtifactStore": {
+          "EncryptionKey": {
+            "Id": {
+              "Fn::GetAtt": [
+                "whitespacewebtemplatekeyD86852AE",
+                "Arn"
+              ]
+            },
+            "Type": "KMS"
+          },
+          "Location": "cdk-artifactsbucket-305326993135-ap-southeast-1",
+          "Type": "S3"
+        },
+        "Name": "whitespace-web-template"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-pipeline/Resource"
+      }
+    },
+    "whitespacewebtemplatepipelineSourceGithubSourceWebhookResource6610DA9D": {
+      "Type": "AWS::CodePipeline::Webhook",
+      "Properties": {
+        "Authentication": "GITHUB_HMAC",
+        "AuthenticationConfiguration": {
+          "SecretToken": "{{resolve:secretsmanager:GITHUB_DATA_GOVTECH:SecretString:::}}"
+        },
+        "Filters": [
+          {
+            "JsonPath": "$.ref",
+            "MatchEquals": "refs/heads/{Branch}"
+          }
+        ],
+        "TargetAction": "Github_Source",
+        "TargetPipeline": {
+          "Ref": "whitespacewebtemplatepipelineC314EA8E"
+        },
+        "TargetPipelineVersion": 1,
+        "RegisterWithThirdParty": true
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-pipeline/Source/Github_Source/WebhookResource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OzW7CMBCEn4W7WZoWlWsLRw6N0gNn42zVjR1v5LVbIcvvDnFA7Wm+/ZvZBprnHTyt3vSvrE1vN9lwQMifURurOhROwaA6sJcYkonq8OU/UpxSpce8qPk8owmQO5xYKHK4LBuPqig7CuQj1v4s7460zEWFouQF9slYjHstqAz3eE7kesgtTejIYxt4wOWHOxZFerxlssOaNmvLjkwNWahUq+nu8edWN/7xCc/fzLaUovztAAbZ/DRbaHbwuhqEaB2SjzQidIteAY5MJtM7AQAA"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-template/CDKMetadata/Default"
+      }
+    }
+  },
+  "Outputs": {
+    "BucketKmsKeyArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "whitespacewebtemplatekeyD86852AE",
+          "Arn"
+        ]
+      },
+      "Export": {
+        "Name": "whitespace-web-template-BucketKmsKeyArn"
+      }
+    },
+    "EcrRepositoryName": {
+      "Value": {
+        "Ref": "whitespacewebtemplateEcrREpo9F6B4C5F"
+      },
+      "Export": {
+        "Name": "whitespace-web-template-EcrRepositoryName"
+      }
+    },
+    "PipelineName": {
+      "Value": {
+        "Ref": "whitespacewebtemplatepipelineC314EA8E"
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store."
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

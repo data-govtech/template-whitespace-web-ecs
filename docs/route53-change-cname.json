@@ -1,0 +1,18 @@
+{
+    "Comment": "Updates CNAME to a specified value",
+    "Changes": [
+        {
+            "Action": "UPSERT",
+            "ResourceRecordSet": {
+                "Name": "dart.peidu.sg",
+                "Type": "CNAME",
+                "TTL": 30,
+                "ResourceRecords": [
+                    {
+                        "Value": "dart.peidu.sg.s3-website-ap-southeast-1.amazonaws.com"
+                    }
+                ]
+            }
+        }
+    ]
+}
