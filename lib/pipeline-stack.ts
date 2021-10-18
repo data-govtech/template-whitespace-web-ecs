@@ -51,7 +51,8 @@ export class PipelineStack extends cdk.Stack {
     let ecrRepo: ecr.IRepository;
 
     ecrRepo = new ecr.Repository(stack, `${stack.stackName}-EcrREpo`, {
-      // removalPolicy: cdk.RemovalPolicy.DESTROY,
+      repositoryName: ecr_repo_name,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     return ecrRepo;

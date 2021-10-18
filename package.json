@@ -1,5 +1,5 @@
 {
-  "name": "whitespace-web-template",
+  "name": "whitespace-web-ecs-template",
   "version": "0.1.0",
   "bin": {
     "temp": "bin/main.js"

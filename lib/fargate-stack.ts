@@ -35,6 +35,8 @@ export class FargateStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: FargateStackProps) {
     super(scope, id, props);
 
+    const routeTableId = "rtb-0838258576523ab4d";
+
     this.project_code = props.project_code;
 
     /* Import existing VPC, get default VPC if name is undefined*/
@@ -44,9 +46,18 @@ export class FargateStack extends cdk.Stack {
 
     const subnets = props.subnet_ids
       ? props.subnet_ids.map((subnetId) =>
-          ec2.Subnet.fromSubnetId(this, subnetId, subnetId)
+          ec2.Subnet.fromSubnetAttributes(this, subnetId, {
+            subnetId,
+            routeTableId,
+          })
         )
       : this.vpc.publicSubnets;
+
+    // const subnets = props.subnet_ids
+    //   ? props.subnet_ids.map((subnetId) =>
+    //       ec2.Subnet.fromSubnetId(this, subnetId, subnetId)
+    //     )
+    //   : this.vpc.publicSubnets;
 
     this.ecsCluster = new ecs.Cluster(this, "EcsCluster", {
       vpc: this.vpc,

@@ -1,14 +1,120 @@
 {
   "Resources": {
-    "whitespacewebtemplateEcrREpo9F6B4C5F": {
+    "whitespacewebecstemplateEcrREpo62C1E71A": {
       "Type": "AWS::ECR::Repository",
-      "UpdateReplacePolicy": "Retain",
-      "DeletionPolicy": "Retain",
+      "Properties": {
+        "RepositoryName": "whitespace-web-ecs-template"
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-EcrREpo/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-EcrREpo/Resource"
       }
     },
-    "whitespacewebtemplatekeyD86852AE": {
+    "CodePipelineRolePolicy31BC10B2": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:Abort*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatekeyD70E57CE",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::305326993135:role/AWSCodePipelineRole"
+            },
+            {
+              "Action": [
+                "codebuild:BatchGetBuilds",
+                "codebuild:StartBuild",
+                "codebuild:StopBuild"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "CdkBuildProject9382C38D",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "codebuild:BatchGetBuilds",
+                "codebuild:StartBuild",
+                "codebuild:StopBuild"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "CodeBuildProject4B91CF3F",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "CodePipelineRolePolicy31BC10B2",
+        "Roles": [
+          "AWSCodePipelineRole"
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/CodePipelineRole/Policy/Resource"
+      }
+    },
+    "whitespacewebecstemplatekeyD70E57CE": {
       "Type": "AWS::KMS::Key",
       "Properties": {
         "KeyPolicy": {
@@ -31,20 +137,6 @@
                 }
               },
               "Resource": "*"
-            },
-            {
-              "Action": [
-                "kms:Decrypt",
-                "kms:DescribeKey",
-                "kms:Encrypt",
-                "kms:ReEncrypt*",
-                "kms:GenerateDataKey*"
-              ],
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "arn:aws:iam::305326993135:role/AWSCodePipelineRole"
-              },
-              "Resource": "*"
             }
           ],
           "Version": "2012-10-17"
@@ -53,22 +145,22 @@
       "UpdateReplacePolicy": "Delete",
       "DeletionPolicy": "Delete",
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-key/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-key/Resource"
       }
     },
-    "whitespacewebtemplatekeyAlias9BC95571": {
+    "whitespacewebecstemplatekeyAlias3CE4BAD3": {
       "Type": "AWS::KMS::Alias",
       "Properties": {
-        "AliasName": "alias/whitespace-web-template-key",
+        "AliasName": "alias/whitespace-web-ecs-template-key",
         "TargetKeyId": {
           "Fn::GetAtt": [
-            "whitespacewebtemplatekeyD86852AE",
+            "whitespacewebecstemplatekeyD70E57CE",
             "Arn"
           ]
         }
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-key/Alias/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-key/Alias/Resource"
       }
     },
     "CdkBuildProjectRoleE0B6FEB0": {
@@ -89,7 +181,7 @@
         "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/CdkBuildProject/Role/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/CdkBuildProject/Role/Resource"
       }
     },
     "CdkBuildProjectRoleDefaultPolicy3C7ECB00": {
@@ -212,7 +304,7 @@
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "whitespacewebtemplatekeyD86852AE",
+                  "whitespacewebecstemplatekeyD70E57CE",
                   "Arn"
                 ]
               }
@@ -227,7 +319,7 @@
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "whitespacewebtemplatekeyD86852AE",
+                  "whitespacewebecstemplatekeyD70E57CE",
                   "Arn"
                 ]
               }
@@ -243,7 +335,7 @@
         ]
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/CdkBuildProject/Role/DefaultPolicy/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/CdkBuildProject/Role/DefaultPolicy/Resource"
       }
     },
     "CdkBuildProject9382C38D": {
@@ -271,13 +363,13 @@
         },
         "EncryptionKey": {
           "Fn::GetAtt": [
-            "whitespacewebtemplatekeyD86852AE",
+            "whitespacewebecstemplatekeyD70E57CE",
             "Arn"
           ]
         }
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/CdkBuildProject/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/CdkBuildProject/Resource"
       }
     },
     "CodeBuildProjectRole2B162745": {
@@ -312,7 +404,7 @@
         "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/CodeBuildProject/Role/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/CodeBuildProject/Role/Resource"
       }
     },
     "CodeBuildProjectRoleDefaultPolicy66975658": {
@@ -435,7 +527,7 @@
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "whitespacewebtemplatekeyD86852AE",
+                  "whitespacewebecstemplatekeyD70E57CE",
                   "Arn"
                 ]
               }
@@ -450,7 +542,7 @@
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "whitespacewebtemplatekeyD86852AE",
+                  "whitespacewebecstemplatekeyD70E57CE",
                   "Arn"
                 ]
               }
@@ -466,7 +558,7 @@
         ]
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/CodeBuildProject/Role/DefaultPolicy/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/CodeBuildProject/Role/DefaultPolicy/Resource"
       }
     },
     "CodeBuildProject4B91CF3F": {
@@ -493,7 +585,7 @@
                             ":",
                             {
                               "Fn::GetAtt": [
-                                "whitespacewebtemplateEcrREpo9F6B4C5F",
+                                "whitespacewebecstemplateEcrREpo62C1E71A",
                                 "Arn"
                               ]
                             }
@@ -510,7 +602,7 @@
                             ":",
                             {
                               "Fn::GetAtt": [
-                                "whitespacewebtemplateEcrREpo9F6B4C5F",
+                                "whitespacewebecstemplateEcrREpo62C1E71A",
                                 "Arn"
                               ]
                             }
@@ -524,7 +616,7 @@
                     },
                     "/",
                     {
-                      "Ref": "whitespacewebtemplateEcrREpo9F6B4C5F"
+                      "Ref": "whitespacewebecstemplateEcrREpo62C1E71A"
                     }
                   ]
                 ]
@@ -553,16 +645,16 @@
         },
         "EncryptionKey": {
           "Fn::GetAtt": [
-            "whitespacewebtemplatekeyD86852AE",
+            "whitespacewebecstemplatekeyD70E57CE",
             "Arn"
           ]
         }
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/CodeBuildProject/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/CodeBuildProject/Resource"
       }
     },
-    "whitespacewebtemplatepipelineC314EA8E": {
+    "whitespacewebecstemplatepipeline23D2CF22": {
       "Type": "AWS::CodePipeline::Pipeline",
       "Properties": {
         "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
@@ -578,7 +670,7 @@
                 },
                 "Configuration": {
                   "Owner": "data-govtech",
-                  "Repo": "whitespace-web-template",
+                  "Repo": "whitespace-web-ecs-template",
                   "Branch": "main",
                   "OAuthToken": "{{resolve:secretsmanager:GITHUB_DATA_GOVTECH:SecretString:::}}",
                   "PollForSourceChanges": false
@@ -656,7 +748,7 @@
           "EncryptionKey": {
             "Id": {
               "Fn::GetAtt": [
-                "whitespacewebtemplatekeyD86852AE",
+                "whitespacewebecstemplatekeyD70E57CE",
                 "Arn"
               ]
             },
@@ -665,13 +757,16 @@
           "Location": "cdk-artifactsbucket-305326993135-ap-southeast-1",
           "Type": "S3"
         },
-        "Name": "whitespace-web-template"
+        "Name": "whitespace-web-ecs-template"
       },
+      "DependsOn": [
+        "CodePipelineRolePolicy31BC10B2"
+      ],
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-pipeline/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Resource"
       }
     },
-    "whitespacewebtemplatepipelineSourceGithubSourceWebhookResource6610DA9D": {
+    "whitespacewebecstemplatepipelineSourceGithubSourceWebhookResourceC2FD0BE1": {
       "Type": "AWS::CodePipeline::Webhook",
       "Properties": {
         "Authentication": "GITHUB_HMAC",
@@ -686,22 +781,22 @@
         ],
         "TargetAction": "Github_Source",
         "TargetPipeline": {
-          "Ref": "whitespacewebtemplatepipelineC314EA8E"
+          "Ref": "whitespacewebecstemplatepipeline23D2CF22"
         },
         "TargetPipelineVersion": 1,
         "RegisterWithThirdParty": true
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/whitespace-web-template-pipeline/Source/Github_Source/WebhookResource"
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Source/Github_Source/WebhookResource"
       }
     },
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OzU7DMBCEn6V3d0sKohyhPXIgSg+cXWcRGzveyGuDKsvv3sZpBaf59m9mG2i2L/CwetW/sja93WTDASEfozZWdSicgkF1YC8xJBPV4ct/pDilSvd5UfN5RhMgdzixUORwXjbuVVF2FMjvWPuzvDnSMhcVipJH2CdjMe61oDLc4ymR6yG3NKEjj23gAZcfblgU6fGayQ5r2qwtOzI1ZKFSraabx59b3fjHn3j6ZralFOWvBzDI5qd5gmYHz6tBiNYh+UgjQrfoBTap5Ho7AQAA"
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OwU7DMAyGn2X3zKMbAo6wHTkwlQPnLDXCTRpXcTKEorw7bdoJTv9n/Z8tN9Dsn+Bu86y/ZWs6u8uGA0J+j9pY1aJwCgbVib3EkExUp0//luKYKt36oub1jCZAbnFkocjhZzFuU1GkB8hndmRqtVLLDqs5ZVF2EMivWIU5XhxpmYcKRckBjslYjEctqAx3eEnkuukujejI4zlwj8ufK5aqjWv/Z1blH3/g5YvZllKUnxagl921uYfmER42vRBtQ/KRBoR2yV8EMYs1OwEAAA=="
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-template/CDKMetadata/Default"
+        "aws:cdk:path": "whitespace-web-ecs-template/CDKMetadata/Default"
       }
     }
   },
@@ -709,25 +804,25 @@
     "BucketKmsKeyArn": {
       "Value": {
         "Fn::GetAtt": [
-          "whitespacewebtemplatekeyD86852AE",
+          "whitespacewebecstemplatekeyD70E57CE",
           "Arn"
         ]
       },
       "Export": {
-        "Name": "whitespace-web-template-BucketKmsKeyArn"
+        "Name": "whitespace-web-ecs-template-BucketKmsKeyArn"
       }
     },
     "EcrRepositoryName": {
       "Value": {
-        "Ref": "whitespacewebtemplateEcrREpo9F6B4C5F"
+        "Ref": "whitespacewebecstemplateEcrREpo62C1E71A"
       },
       "Export": {
-        "Name": "whitespace-web-template-EcrRepositoryName"
+        "Name": "whitespace-web-ecs-template-EcrRepositoryName"
       }
     },
     "PipelineName": {
       "Value": {
-        "Ref": "whitespacewebtemplatepipelineC314EA8E"
+        "Ref": "whitespacewebecstemplatepipeline23D2CF22"
       }
     }
   },
