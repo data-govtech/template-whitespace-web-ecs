@@ -18,7 +18,7 @@ export const createCdkBuildProject = (scope: cdk.Construct, id: string) =>
           commands: "npm install",
         },
         build: {
-          commands: ["npm run build", "npm run cdk synth -- -o dist"],
+          commands: ["npm run build", "npm run cdk synth -- -v -o dist"],
         },
       },
       artifacts: {
