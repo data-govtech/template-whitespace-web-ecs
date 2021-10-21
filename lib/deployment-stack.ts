@@ -23,7 +23,6 @@ export interface DeploymentStackProps extends cdk.StackProps {
   code_repo_owner?: string;
   // others
   readonly vpc_id: string;
-  readonly subnet_ids: string[];
 }
 
 export class DeploymentStack extends cdk.Stack {

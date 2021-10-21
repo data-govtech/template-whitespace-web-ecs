@@ -14,8 +14,9 @@ export interface FargateStackProps extends cdk.StackProps {
   readonly project_code: string;
   // readonly container_image?: ecs.ContainerImage;
   readonly vpc_id: string;
-  readonly subnet_ids: string[];
+  readonly public_subnet_ids: string[];
   readonly route_table_id: string;
+  readonly private_subnet_ids: string[];
   // domain
   readonly domain_name?: string;
   readonly hosted_zone_name?: string;
@@ -31,6 +32,7 @@ export class FargateStack extends cdk.Stack {
   public readonly ecrRepo: ecr.IRepository;
   public readonly vpc: ec2.IVpc;
   public readonly subnets: ec2.ISubnet[];
+  public readonly private_subnets: ec2.ISubnet[];
 
   public readonly fargateSecurityGroup: ec2.SecurityGroup;
 
@@ -45,8 +47,8 @@ export class FargateStack extends cdk.Stack {
     });
 
     const routeTableId = props.route_table_id;
-    this.subnets = props.subnet_ids
-      ? props.subnet_ids.map((subnetId) =>
+    this.subnets = props.public_subnet_ids
+      ? props.public_subnet_ids.map((subnetId) =>
           ec2.Subnet.fromSubnetAttributes(this, subnetId, {
             subnetId,
             routeTableId,
@@ -54,11 +56,13 @@ export class FargateStack extends cdk.Stack {
         )
       : this.vpc.publicSubnets;
 
-    // const subnets = props.subnet_ids
-    //   ? props.subnet_ids.map((subnetId) =>
-    //       ec2.Subnet.fromSubnetId(this, subnetId, subnetId)
-    //     )
-    //   : this.vpc.publicSubnets;
+    this.private_subnets = props.private_subnet_ids
+      ? props.private_subnet_ids.map((subnetId) =>
+          ec2.Subnet.fromSubnetAttributes(this, subnetId, {
+            subnetId,
+          })
+        )
+      : this.vpc.privateSubnets;
 
     this.ecsCluster = new ecs.Cluster(this, "EcsCluster", {
       vpc: this.vpc,
@@ -106,7 +110,7 @@ export class FargateStack extends cdk.Stack {
       taskDefinition: this.fargateTask,
       securityGroups: [this.fargateSecurityGroup],
       assignPublicIp: true,
-      vpcSubnets: { subnets: this.subnets },
+      vpcSubnets: { subnets: this.private_subnets },
       platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
     });
 

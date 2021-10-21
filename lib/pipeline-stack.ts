@@ -15,7 +15,7 @@ import { ManagedPolicy, PolicyStatement } from "@aws-cdk/aws-iam";
 export interface PipelineStackProps extends cdk.StackProps {
   // basic props
   project_code: string;
-  codepipeline_role_arn?: string;
+  codepipeline_role_arn: string;
   cloudformation_role_arn: string;
   artifact_bucket_name: string;
   // repo
@@ -23,9 +23,6 @@ export interface PipelineStackProps extends cdk.StackProps {
   code_repo_branch: string;
   code_repo_secret_var?: string;
   code_repo_owner?: string;
-  // others
-  readonly vpc_id: string;
-  readonly subnet_ids: string[];
 }
 
 export class PipelineStack extends cdk.Stack {

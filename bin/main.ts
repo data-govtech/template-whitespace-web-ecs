@@ -40,12 +40,17 @@ const props = {
   artifact_bucket_name: process.env.AWS_ARTIFACT_BUCKET_NAME!,
 
   vpc_id: process.env.VPC_ID!,
-  subnet_ids: process.env.SUBNET_IDS
+  public_subnet_ids: process.env.SUBNET_IDS
     ? process.env.SUBNET_IDS.split(",")
         .map((one) => one.trim())
         .filter((n) => n)
     : [],
   route_table_id: process.env.ROUTE_TABLE_ID!,
+  private_subnet_ids: process.env.PRIVATE_SUBNET_IDS
+    ? process.env.PRIVATE_SUBNET_IDS.split(",")
+        .map((one) => one.trim())
+        .filter((n) => n)
+    : [],
 
   domain_name: process.env.DOMAIN_NAME,
   hosted_zone_name: process.env.HOSTED_ZONE_NAME,
