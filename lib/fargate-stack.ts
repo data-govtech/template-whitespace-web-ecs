@@ -15,6 +15,7 @@ export interface FargateStackProps extends cdk.StackProps {
   // readonly container_image?: ecs.ContainerImage;
   readonly vpc_id: string;
   readonly subnet_ids: string[];
+  readonly route_table_id: string;
   // domain
   readonly domain_name?: string;
   readonly hosted_zone_name?: string;
@@ -29,13 +30,12 @@ export class FargateStack extends cdk.Stack {
 
   public readonly ecrRepo: ecr.IRepository;
   public readonly vpc: ec2.IVpc;
-  public readonly subnets: ec2.Subnet[];
+  public readonly subnets: ec2.ISubnet[];
+
   public readonly fargateSecurityGroup: ec2.SecurityGroup;
 
   constructor(scope: cdk.Construct, id: string, props: FargateStackProps) {
     super(scope, id, props);
-
-    const routeTableId = "rtb-0838258576523ab4d";
 
     this.project_code = props.project_code;
 
@@ -44,7 +44,8 @@ export class FargateStack extends cdk.Stack {
       vpcId: props.vpc_id,
     });
 
-    const subnets = props.subnet_ids
+    const routeTableId = props.route_table_id;
+    this.subnets = props.subnet_ids
       ? props.subnet_ids.map((subnetId) =>
           ec2.Subnet.fromSubnetAttributes(this, subnetId, {
             subnetId,
@@ -105,7 +106,7 @@ export class FargateStack extends cdk.Stack {
       taskDefinition: this.fargateTask,
       securityGroups: [this.fargateSecurityGroup],
       assignPublicIp: true,
-      vpcSubnets: { subnets: subnets },
+      vpcSubnets: { subnets: this.subnets },
       platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
     });
 

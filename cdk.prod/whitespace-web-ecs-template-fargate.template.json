@@ -510,11 +510,8 @@
           }
         ],
         "Subnets": [
-          "subnet-01cc325eb653ff8c2",
-          "subnet-0685e14db34759a94",
-          "subnet-08ab0c1ac462dd1bb",
-          "subnet-0816ef5ba8658caec",
-          "subnet-0a8c38993c09da49b"
+          "subnet-0fe801c8d8de85501",
+          "subnet-088dccca387a3fa3d"
         ],
         "Type": "application"
       },

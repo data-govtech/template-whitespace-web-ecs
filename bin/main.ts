@@ -45,6 +45,7 @@ const props = {
         .map((one) => one.trim())
         .filter((n) => n)
     : [],
+  route_table_id: process.env.ROUTE_TABLE_ID!,
 
   domain_name: process.env.DOMAIN_NAME,
   hosted_zone_name: process.env.HOSTED_ZONE_NAME,
