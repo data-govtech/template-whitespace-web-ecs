@@ -35,7 +35,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":s3:::cdk-artifactsbucket-904766938874-ap-southeast-1"
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
                     ]
                   ]
                 },
@@ -47,7 +47,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":s3:::cdk-artifactsbucket-904766938874-ap-southeast-1/*"
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
                     ]
                   ]
                 }
@@ -72,7 +72,7 @@
             {
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
-              "Resource": "arn:aws:iam::904766938874:role/AWSCodePipelineRole"
+              "Resource": "arn:aws:iam::305326993135:role/AWSCodePipelineRole"
             },
             {
               "Action": [
@@ -131,7 +131,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":iam::904766938874:root"
+                      ":iam::305326993135:root"
                     ]
                   ]
                 }
@@ -178,7 +178,7 @@
           ],
           "Version": "2012-10-17"
         },
-        "PermissionsBoundary": "arn:aws:iam::904766938874:policy/GCCIAccountBoundary"
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template/CdkBuildProject/Role/Resource"
@@ -205,7 +205,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
                       {
                         "Ref": "CdkBuildProject9382C38D"
                       }
@@ -220,7 +220,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
                       {
                         "Ref": "CdkBuildProject9382C38D"
                       },
@@ -247,11 +247,32 @@
                     {
                       "Ref": "AWS::Partition"
                     },
-                    ":codebuild:ap-southeast-1:904766938874:report-group/",
+                    ":codebuild:ap-southeast-1:305326993135:report-group/",
                     {
                       "Ref": "CdkBuildProject9382C38D"
                     },
                     "-*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": "ec2:DescribeAvailabilityZones",
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:iam::",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":role/cdk-*"
                   ]
                 ]
               }
@@ -275,7 +296,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":s3:::cdk-artifactsbucket-904766938874-ap-southeast-1"
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
                     ]
                   ]
                 },
@@ -287,7 +308,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":s3:::cdk-artifactsbucket-904766938874-ap-southeast-1/*"
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
                     ]
                   ]
                 }
@@ -358,7 +379,7 @@
           ]
         },
         "Source": {
-          "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": \"npm install\"\n    },\n    \"build\": {\n      \"commands\": [\n        \"npm run build\",\n        \"npm run cdk synth -- -o dist\"\n      ]\n    }\n  },\n  \"artifacts\": {\n    \"base-directory\": \"dist\",\n    \"files\": [\n      \"*.template.json\"\n    ]\n  }\n}",
+          "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"commands\": \"npm install\"\n    },\n    \"build\": {\n      \"commands\": [\n        \"npm run build\",\n        \"npm run cdk synth -- -v -o dist\"\n      ]\n    }\n  },\n  \"artifacts\": {\n    \"base-directory\": \"dist\",\n    \"files\": [\n      \"*.template.json\"\n    ]\n  }\n}",
           "Type": "CODEPIPELINE"
         },
         "EncryptionKey": {
@@ -401,7 +422,7 @@
             ]
           }
         ],
-        "PermissionsBoundary": "arn:aws:iam::904766938874:policy/GCCIAccountBoundary"
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template/CodeBuildProject/Role/Resource"
@@ -428,7 +449,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
                       {
                         "Ref": "CodeBuildProject4B91CF3F"
                       }
@@ -443,7 +464,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":logs:ap-southeast-1:904766938874:log-group:/aws/codebuild/",
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
                       {
                         "Ref": "CodeBuildProject4B91CF3F"
                       },
@@ -470,7 +491,7 @@
                     {
                       "Ref": "AWS::Partition"
                     },
-                    ":codebuild:ap-southeast-1:904766938874:report-group/",
+                    ":codebuild:ap-southeast-1:305326993135:report-group/",
                     {
                       "Ref": "CodeBuildProject4B91CF3F"
                     },
@@ -498,7 +519,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":s3:::cdk-artifactsbucket-904766938874-ap-southeast-1"
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
                     ]
                   ]
                 },
@@ -510,7 +531,7 @@
                       {
                         "Ref": "AWS::Partition"
                       },
-                      ":s3:::cdk-artifactsbucket-904766938874-ap-southeast-1/*"
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
                     ]
                   ]
                 }
@@ -657,7 +678,7 @@
     "whitespacewebecstemplatepipeline23D2CF22": {
       "Type": "AWS::CodePipeline::Pipeline",
       "Properties": {
-        "RoleArn": "arn:aws:iam::904766938874:role/AWSCodePipelineRole",
+        "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
         "Stages": [
           {
             "Actions": [
@@ -711,7 +732,7 @@
                     "Name": "Artifact_Build_CdkBuild_Action"
                   }
                 ],
-                "RoleArn": "arn:aws:iam::904766938874:role/AWSCodePipelineRole",
+                "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
                 "RunOrder": 1
               },
               {
@@ -737,7 +758,7 @@
                     "Name": "Artifact_Build_DockerBuild_Action"
                   }
                 ],
-                "RoleArn": "arn:aws:iam::904766938874:role/AWSCodePipelineRole",
+                "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
                 "RunOrder": 1
               }
             ],
@@ -754,7 +775,7 @@
             },
             "Type": "KMS"
           },
-          "Location": "cdk-artifactsbucket-904766938874-ap-southeast-1",
+          "Location": "cdk-artifactsbucket-305326993135-ap-southeast-1",
           "Type": "S3"
         },
         "Name": "whitespace-web-ecs-template"
@@ -793,7 +814,7 @@
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OwU7DMAyGn2X3zKMbAo6wHTkwlQPnLDXCTRpXcTKEorw7bdoJTv9n/Z8tN9Dsn+Bu86y/ZWs6u8uGA0J+j9pY1aJwCgbVib3EkExUp0//luKYKt36oub1jCZAbnFkocjhZzFuU1GkB8hndmRqtVLLDqs5ZVF2EMivWIU5XhxpmYcKRckBjslYjEctqAx3eEnkuukujejI4zlwj8ufK5aqjWv/Z1blH3/g5YvZllKUnxagl921uYfmER42vRBtQ/KRBoR2yV8EMYs1OwEAAA=="
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OwU7DMAyGn2X3zCMgIY6wHXdgKgfOWWqEmzSu4gSEorw7bdoJTv9n/Z8ta9D3T3C3ezbfsre9OxTLEaG8JWOd6lA4R4vqxEFSzDap00d4zWnKjW59Vct6QRuhdDixUOL4sxq3qSoyI5QLe7Kt2qhjj82csyo3CpQzNmGJF09GlqFBVfIAx2wdpqMRVJZ7vGby/XyXJvQU8BJ5wPXPDWvTpq3/M5vyj9/x+snsaq0qzAswyOFLP4LWoHeDEO1jDolGhG7NX5Zrdz07AQAA"
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template/CDKMetadata/Default"

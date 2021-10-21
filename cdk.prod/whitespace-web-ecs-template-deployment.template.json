@@ -536,7 +536,7 @@
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02NSw6CQBBEz+J+aEWNujR4AA0uXGPTxgacJvPRGDJ3FwaMruolVS+VQrrcwWK2L142wbKedyiGoDu7AmuVkxVvkNRBtHXGo1OHmz561/pI3z6oQe8IDeTUimUn5p0VlhQXD+hO0jC+B2GiXBqKfp9B2RVkHmty0UAp6eq5KXuPW2pY08lIReP3hCHO2qn/LePkjy90vYvUIQSlewEqO3+ma0i3sJlVljkxXjt+EORjfgDK9vPTDwEAAA=="
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/02NSwrCQBBEz5L92DoK4lKSAyhx4Tp2Wux8psN8FAlzd+MY0VU9qHqUBr3ewSrbVw+3wLpdjiiWYDz5CltVkpNgkVQhxnkb0Kviag7BDyHRt4/qrY+EFkoaxLEX+8wrR4qrHsajdIzPtzBTKR0lf8qo3AbygC35ZKDUdAnc1ZPHA3Vs6Giloc/3jDHNhrn/LdPkj890uYm0MUZlJgEat7zrLWgNOmsc88IG47knKD/5AlisD9sPAQAA"
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template-deployment/CDKMetadata/Default"

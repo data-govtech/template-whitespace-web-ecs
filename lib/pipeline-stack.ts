@@ -178,6 +178,21 @@ export class PipelineStack extends cdk.Stack {
     runOrder: number = 1
   ): codepipeline_actions.CodeBuildAction {
     const project = createCdkBuildProject(this, "CdkBuildProject");
+    // Add additional permissions to role
+    project.role?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: ["*"],
+        actions: ["ec2:DescribeAvailabilityZones"],
+      })
+    );
+    project.role?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [`arn:aws:iam::${cdk.Aws.ACCOUNT_ID}:role/cdk-*`],
+        actions: ["sts:AssumeRole"],
+      })
+    );
     const buildAction = new codepipeline_actions.CodeBuildAction({
       actionName: "CdkBuild_Action",
       project: project,

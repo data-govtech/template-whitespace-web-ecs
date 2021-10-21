@@ -510,8 +510,11 @@
           }
         ],
         "Subnets": [
-          "subnet-0fe801c8d8de85501",
-          "subnet-088dccca387a3fa3d"
+          "subnet-01cc325eb653ff8c2",
+          "subnet-0685e14db34759a94",
+          "subnet-08ab0c1ac462dd1bb",
+          "subnet-0816ef5ba8658caec",
+          "subnet-0a8c38993c09da49b"
         ],
         "Type": "application"
       },
@@ -832,7 +835,7 @@
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31S227bMAz9lr4r6tKu2x7XuOtQoEAHu9g7IzOGGlkyRCpFYPjfR9l14mzAnnh4eL+s9frmm/509R3eaWXq/XVvQkTdVwxmr0qkkKJBdU+ELFxjfaOK4IljMqyKRBzak1ex80v8krhLPKicukdDui+cBGDMxhk+QmyA8RVo/4A76y3b4LPD30zwDNZjXHAfsRXGg51KzrAy4GDrxrRFSF66sNDqvgxuajPLX8FZc8zqhAaFJuoSu0CWQzxugFC50Ejjz6H5GUPqsvOMs/uNbApNipaPJ/v/iSffRCT6h/8x0rKsrpNeIM8HiQPJILJzKXOaKDbIY/glM4nXKHeTgGqKO494QUjrDoitcQHqraTxRmwHmeb+XP5ZbJvRNl3sQl/6WTmk//CZ8cI+NXbaxkIdlKRiu8uO2IKHBqN+8PRbWq2FqouzWTlotzXo/jF5M//IjAdFtyvIP0p6fFXR9SaZPfJ4RCnGeHcr45Uo/11Pn5pRhTwMg/KhRv1G14f1Z73+qr9cvZG1qyiPY1vU5ST/AFwUSKMsAwAA"
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31S227bMAz9lr4r6txiwx7XuGtRoMAGu9g7IzOGGlkyRCpDYPjfR9l14mzAnnh4eL8Uurj7qj/dfIPftDHN4XYwIaIeagZzUBVSSNGgeiBCFq61vlVl8MQxGVZlIg7d2avc+zX+kbhPPKqcekBDeiidBGDMxgU+QWyB8Q3o8Ih76y3b4LPD30zwDNZjXHEfsTXGo51LLrA24GDnprRlSF66sNDpoQpubjPLn8FZc8rqjEaFJuoK+0CWQzxtgVC50Erjr6F9jiH12XnB2f1ONoUmRcuns/3/xItvIxL9w3+faFlW30svkOeDxIFkENm5lDlPFFvkKfyamcVblLtJQD3HXUa8IqR1B8TWuADNTtJ4I7ajTPNwKf8qtu1kmy92pa/9rBzSf/gseGWfGztvY6WOSlKx3WdH7MBDi1E/evolrTZCNeXFrBx0uwb08JS8WX5kwaOi+w3kHyU9varoepvMAXk6ohRj/Hwv41Uo/93Mn5pRjTyOo/KhQf1Ot8fiiy4KXdy8k7WbKI9jO9TVLP8Azk60qywDAAA="
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template-fargate/CDKMetadata/Default"
