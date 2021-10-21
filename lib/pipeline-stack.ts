@@ -112,25 +112,25 @@ export class PipelineStack extends cdk.Stack {
             ),
           ],
         },
-        // {
-        //   stageName: "Deploy",
-        //   actions: [
-        //     this.createCfnDeployAction(
-        //       cdkBuildOutput,
-        //       `${props.project_code}-fargate`,
-        //       cloudFormationRole,
-        //       [],
-        //       1
-        //     ),
-        //     this.createCfnDeployAction(
-        //       cdkBuildOutput,
-        //       `${props.project_code}-deployment`,
-        //       cloudFormationRole,
-        //       [],
-        //       2
-        //     ),
-        //   ],
-        // },
+        {
+          stageName: "Deploy",
+          actions: [
+            this.createCfnDeployAction(
+              cdkBuildOutput,
+              `${props.project_code}-fargate`,
+              cloudFormationRole,
+              [],
+              1
+            ),
+            this.createCfnDeployAction(
+              cdkBuildOutput,
+              `${props.project_code}-deployment`,
+              cloudFormationRole,
+              [],
+              2
+            ),
+          ],
+        },
       ],
     });
   }

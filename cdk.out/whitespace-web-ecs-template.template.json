@@ -101,6 +101,26 @@
                   "Arn"
                 ]
               }
+            },
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatefargateCodePipelineActionRole9957FF5F",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatedeploymentCodePipelineActionRoleAB7BFFBC",
+                  "Arn"
+                ]
+              }
             }
           ],
           "Version": "2012-10-17"
@@ -763,6 +783,69 @@
               }
             ],
             "Name": "Build"
+          },
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "StackName": "whitespace-web-ecs-template-fargate",
+                  "Capabilities": "CAPABILITY_NAMED_IAM",
+                  "RoleArn": "arn:aws:iam::305326993135:role/cdk-hnb659fds-cfn-exec-role-305326993135-ap-southeast-1",
+                  "ParameterOverrides": "{}",
+                  "ActionMode": "CREATE_UPDATE",
+                  "TemplatePath": "Artifact_Build_CdkBuild_Action::whitespace-web-ecs-template-fargate.template.json"
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "Artifact_Build_CdkBuild_Action"
+                  }
+                ],
+                "Name": "Deploy-whitespace-web-ecs-template-fargate",
+                "RoleArn": {
+                  "Fn::GetAtt": [
+                    "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatefargateCodePipelineActionRole9957FF5F",
+                    "Arn"
+                  ]
+                },
+                "RunOrder": 1
+              },
+              {
+                "ActionTypeId": {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "CloudFormation",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "StackName": "whitespace-web-ecs-template-deployment",
+                  "Capabilities": "CAPABILITY_NAMED_IAM",
+                  "RoleArn": "arn:aws:iam::305326993135:role/cdk-hnb659fds-cfn-exec-role-305326993135-ap-southeast-1",
+                  "ParameterOverrides": "{}",
+                  "ActionMode": "CREATE_UPDATE",
+                  "TemplatePath": "Artifact_Build_CdkBuild_Action::whitespace-web-ecs-template-deployment.template.json"
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "Artifact_Build_CdkBuild_Action"
+                  }
+                ],
+                "Name": "Deploy-whitespace-web-ecs-template-deployment",
+                "RoleArn": {
+                  "Fn::GetAtt": [
+                    "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatedeploymentCodePipelineActionRoleAB7BFFBC",
+                    "Arn"
+                  ]
+                },
+                "RunOrder": 2
+              }
+            ],
+            "Name": "Deploy"
           }
         ],
         "ArtifactStore": {
@@ -809,6 +892,260 @@
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Source/Github_Source/WebhookResource"
+      }
+    },
+    "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatefargateCodePipelineActionRole9957FF5F": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::305326993135:root"
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Deploy/Deploy-whitespace-web-ecs-template-fargate/CodePipelineActionRole/Resource"
+      }
+    },
+    "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatefargateCodePipelineActionRoleDefaultPolicyA1B50B86": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::305326993135:role/cdk-hnb659fds-cfn-exec-role-305326993135-ap-southeast-1"
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatekeyD70E57CE",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:DescribeStack*",
+                "cloudformation:GetStackPolicy",
+                "cloudformation:GetTemplate*",
+                "cloudformation:SetStackPolicy",
+                "cloudformation:UpdateStack",
+                "cloudformation:ValidateTemplate"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":cloudformation:ap-southeast-1:305326993135:stack/whitespace-web-ecs-template-fargate/*"
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatefargateCodePipelineActionRoleDefaultPolicyA1B50B86",
+        "Roles": [
+          {
+            "Ref": "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatefargateCodePipelineActionRole9957FF5F"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Deploy/Deploy-whitespace-web-ecs-template-fargate/CodePipelineActionRole/DefaultPolicy/Resource"
+      }
+    },
+    "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatedeploymentCodePipelineActionRoleAB7BFFBC": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::305326993135:root"
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Deploy/Deploy-whitespace-web-ecs-template-deployment/CodePipelineActionRole/Resource"
+      }
+    },
+    "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatedeploymentCodePipelineActionRoleDefaultPolicyC6D84017": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::305326993135:role/cdk-hnb659fds-cfn-exec-role-305326993135-ap-southeast-1"
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatekeyD70E57CE",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:DescribeStack*",
+                "cloudformation:GetStackPolicy",
+                "cloudformation:GetTemplate*",
+                "cloudformation:SetStackPolicy",
+                "cloudformation:UpdateStack",
+                "cloudformation:ValidateTemplate"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":cloudformation:ap-southeast-1:305326993135:stack/whitespace-web-ecs-template-deployment/*"
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatedeploymentCodePipelineActionRoleDefaultPolicyC6D84017",
+        "Roles": [
+          {
+            "Ref": "whitespacewebecstemplatepipelineDeployDeploywhitespacewebecstemplatedeploymentCodePipelineActionRoleAB7BFFBC"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Deploy/Deploy-whitespace-web-ecs-template-deployment/CodePipelineActionRole/DefaultPolicy/Resource"
       }
     },
     "CDKMetadata": {
