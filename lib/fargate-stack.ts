@@ -32,7 +32,7 @@ export class FargateStack extends cdk.Stack {
 
   public readonly ecrRepo: ecr.IRepository;
   public readonly vpc: ec2.IVpc;
-  public readonly subnets: ec2.ISubnet[];
+  public readonly public_subnets: ec2.ISubnet[];
   public readonly private_subnets: ec2.ISubnet[];
 
   public readonly fargateSecurityGroup: ec2.SecurityGroup;
@@ -48,7 +48,7 @@ export class FargateStack extends cdk.Stack {
     });
 
     const routeTableId = props.route_table_id;
-    this.subnets = props.public_subnet_ids
+    this.public_subnets = props.public_subnet_ids
       ? props.public_subnet_ids.map((subnetId) =>
           ec2.Subnet.fromSubnetAttributes(this, subnetId, {
             subnetId,
@@ -111,7 +111,7 @@ export class FargateStack extends cdk.Stack {
       taskDefinition: this.fargateTask,
       securityGroups: [this.fargateSecurityGroup],
       assignPublicIp: true,
-      vpcSubnets: { subnets: this.private_subnets },
+      vpcSubnets: { subnets: this.public_subnets },
       platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
     });
 
@@ -293,7 +293,7 @@ export class FargateStack extends cdk.Stack {
     const alb = new elb.ApplicationLoadBalancer(this, "alb", {
       vpc: this.vpc,
       internetFacing: true,
-      vpcSubnets: { subnets: this.subnets },
+      vpcSubnets: { subnets: this.public_subnets },
     });
 
     const targetGroup = new elb.ApplicationTargetGroup(
