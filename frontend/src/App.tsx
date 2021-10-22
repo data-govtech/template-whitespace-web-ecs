@@ -16,7 +16,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Whitespace: Finally Stable? Yeah!
+          Whitespace: Last Mile on DEV!
         </a>
       </header>
     </div>
