@@ -21,6 +21,7 @@ export interface FargateStackProps extends cdk.StackProps {
   readonly domain_name?: string;
   readonly hosted_zone_name?: string;
   readonly hosted_zone_id?: string;
+  readonly certificate_arn?: string;
 }
 
 export class FargateStack extends cdk.Stack {
@@ -122,6 +123,7 @@ export class FargateStack extends cdk.Stack {
       domain_name: props.domain_name!,
       hosted_zone_name: props.hosted_zone_name!,
       hosted_zone_id: props.hosted_zone_id!,
+      certificate_arn: props.certificate_arn!,
     });
 
     this.output();
@@ -283,6 +285,7 @@ export class FargateStack extends cdk.Stack {
     hosted_zone_name: string;
     hosted_zone_id: string;
     domain_name: string;
+    certificate_arn: string;
   }) {
     // /* ####################################### */
     // /* Define TargetGroup, ALB, Listener       */
@@ -323,14 +326,22 @@ export class FargateStack extends cdk.Stack {
     let listener: elb.ApplicationListener;
 
     if (props.domain_name) {
-      const certificate = new cert_manager.DnsValidatedCertificate(
+      /* Works when domain is owned by the account */
+      // const certificate = new cert_manager.DnsValidatedCertificate(
+      //   this,
+      //   "certificate",
+      //   {
+      //     domainName: props.domain_name,
+      //     hostedZone: zone,
+      //     region: "ap-southeast-1",
+      //   }
+      // );
+
+      /* Works when domain is owned by another account */
+      const certificate = cert_manager.Certificate.fromCertificateArn(
         this,
-        "certificate",
-        {
-          domainName: props.domain_name,
-          hostedZone: zone,
-          region: "ap-southeast-1",
-        }
+        "certificateImported",
+        props.certificate_arn
       );
 
       listener = alb.addListener("alb-listener", {

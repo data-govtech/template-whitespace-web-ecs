@@ -55,6 +55,7 @@ const props = {
   domain_name: process.env.DOMAIN_NAME,
   hosted_zone_name: process.env.HOSTED_ZONE_NAME,
   hosted_zone_id: process.env.HOSTED_ZONE_ID,
+  certificate_arn: process.env.CERTIFICATE_ARN,
 };
 
 const env = {
