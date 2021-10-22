@@ -8,13 +8,12 @@ import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import * as kms from "@aws-cdk/aws-kms";
 import * as s3 from "@aws-cdk/aws-s3";
 import * as iam from "@aws-cdk/aws-iam";
-import { createCdkBuildProject } from "../cdk-common/codebuild-utils";
-import { ManagedPolicy, PolicyStatement } from "@aws-cdk/aws-iam";
+import { ManagedPolicy } from "@aws-cdk/aws-iam";
 
-export interface PipelineStackProps extends cdk.StackProps {
+export interface DeploymentStackProps extends cdk.StackProps {
   // basic props
   project_code: string;
-  codepipeline_role_arn: string;
+  codepipeline_role_arn?: string;
   cloudformation_role_arn: string;
   artifact_bucket_name: string;
   // repo
@@ -26,42 +25,33 @@ export interface PipelineStackProps extends cdk.StackProps {
   readonly vpc_id: string;
 }
 
-export class PipelineStack extends cdk.Stack {
-  private project_code: string;
-  private pipeline: codepipeline.Pipeline;
-  private ecrRepo: ecr.IRepository;
-  private key: kms.Key;
+export class DeploymentStack extends cdk.Stack {
+  public readonly pipeline: codepipeline.Pipeline;
+  public readonly ecrRepo: ecr.IRepository;
+  public importedFargateService: ecs.FargateService;
+  readonly project_code: string;
 
-  constructor(scope: cdk.Construct, id: string, props: PipelineStackProps) {
+  constructor(scope: cdk.Construct, id: string, props: DeploymentStackProps) {
     super(scope, id, props);
 
     this.project_code = props.project_code;
-    this.ecrRepo = this.createEcrRepo(this, props.project_code);
+
+    /* Get existing ECR Repo */
+    this.ecrRepo = ecr.Repository.fromRepositoryName(
+      this,
+      `${this.stackName}-EcrREpo`,
+      cdk.Fn.importValue(`${this.project_code}-EcrRepositoryName`)
+    );
+
     this.pipeline = this.createPipeline(this, props);
     this.output();
   }
 
-  private createEcrRepo(
-    stack: cdk.Stack,
-    ecr_repo_name: string
-  ): ecr.IRepository {
-    //Try to get existing the ECR repository
-    let ecrRepo: ecr.IRepository;
-
-    ecrRepo = new ecr.Repository(stack, `${stack.stackName}-EcrREpo`, {
-      repositoryName: ecr_repo_name,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
-
-    return ecrRepo;
-  }
-
   private createPipeline(
     scope: cdk.Stack,
-    props: PipelineStackProps
+    props: DeploymentStackProps
   ): codepipeline.Pipeline {
     const sourceOutput = new codepipeline.Artifact();
-    const cdkBuildOutput = new codepipeline.Artifact();
     const dockerBuildOutput = new codepipeline.Artifact();
 
     /* Create existing CodePipeline role */
@@ -71,66 +61,24 @@ export class PipelineStack extends cdk.Stack {
       props.codepipeline_role_arn!
     );
 
-    const cloudFormationRole = iam.Role.fromRoleArn(
-      scope,
-      "CloudFormationRole",
-      props.cloudformation_role_arn!
-    );
-
     /* Use existing S3 bucket */
     const artifactBucket = this.getArtifactBucket({ ...props });
-    // const containerName = cdk.Fn.importValue(`${this.project_code}-FargateClusterContainerName`);
+    const containerName = cdk.Fn.importValue(
+      `${this.project_code}-FargateClusterContainerName`
+    );
 
     // const repositoryUri = `${cdk.Aws.ACCOUNT_ID}.dkr.ecr.${cdk.Aws.REGION}.amazonaws.com/aws-cdk/${props.project_code}`;
     return new codepipeline.Pipeline(scope, `${props.project_code}-pipeline`, {
       artifactBucket,
       role: pipelineRole,
-      pipelineName: props.project_code,
+      pipelineName: `${props.project_code}-deployment`,
       stages: [
         {
           stageName: "Source",
           actions: [this.createSourceAction(sourceOutput, { ...props })],
         },
         {
-          stageName: "BuildCdk",
-          actions: [
-            this.createCdkBuildAction(
-              sourceOutput,
-              cdkBuildOutput,
-              pipelineRole
-            ),
-            // this.createDockerBuildAction(
-            //   sourceOutput,
-            //   dockerBuildOutput,
-            //   pipelineRole,
-            //   {
-            //     repositoryUri: this.ecrRepo.repositoryUri,
-            //     containerName: "",
-            //   }
-            // ),
-          ],
-        },
-        {
-          stageName: "DeployFargate",
-          actions: [
-            this.createCfnDeployAction(
-              cdkBuildOutput,
-              `${props.project_code}-fargate`,
-              cloudFormationRole,
-              [],
-              1
-            ),
-            // this.createCfnDeployAction(
-            //   cdkBuildOutput,
-            //   `${props.project_code}-deployment`,
-            //   cloudFormationRole,
-            //   [],
-            //   2
-            // ),
-          ],
-        },
-        {
-          stageName: "BuildContainer",
+          stageName: "Build",
           actions: [
             this.createDockerBuildAction(
               sourceOutput,
@@ -138,15 +86,13 @@ export class PipelineStack extends cdk.Stack {
               pipelineRole,
               {
                 repositoryUri: this.ecrRepo.repositoryUri,
-                containerName: cdk.Fn.importValue(
-                  `${this.project_code}-FargateClusterContainerName`
-                ),
+                containerName: containerName,
               }
             ),
           ],
         },
         {
-          stageName: "DeployEsc",
+          stageName: "Deploy",
           actions: [
             this.createEcsDeployAction(
               dockerBuildOutput,
@@ -165,14 +111,15 @@ export class PipelineStack extends cdk.Stack {
     artifact_bucket_name: string;
   }): s3.IBucket {
     /* Create a new KMS key */
-    this.key = new kms.Key(this, `${props.project_code}-key`, {
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      alias: `${props.project_code}-key`,
-    });
+    const key = kms.Key.fromKeyArn(
+      this,
+      `${props.project_code}-key-deployment`,
+      cdk.Fn.importValue(`${this.project_code}-BucketKmsKeyArn`)
+    );
 
     return s3.Bucket.fromBucketAttributes(this, "ArtifactBucket", {
       bucketName: props.artifact_bucket_name,
-      encryptionKey: this.key,
+      encryptionKey: key,
     });
   }
 
@@ -194,40 +141,6 @@ export class PipelineStack extends cdk.Stack {
       output: output,
     });
     return githubAction;
-  }
-
-  private createCdkBuildAction(
-    input: codepipeline.Artifact,
-    output: codepipeline.Artifact,
-    role: iam.IRole,
-    runOrder: number = 1
-  ): codepipeline_actions.CodeBuildAction {
-    const project = createCdkBuildProject(this, "CdkBuildProject");
-    // Add additional permissions to role
-    project.role?.addToPrincipalPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: ["*"],
-        actions: ["ec2:DescribeAvailabilityZones"],
-      })
-    );
-    project.role?.addToPrincipalPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [`arn:aws:iam::${cdk.Aws.ACCOUNT_ID}:role/cdk-*`],
-        actions: ["sts:AssumeRole"],
-      })
-    );
-    const buildAction = new codepipeline_actions.CodeBuildAction({
-      actionName: "CdkBuild_Action",
-      project: project,
-      input: input,
-      outputs: [output],
-      role: role,
-      runOrder: runOrder,
-    });
-
-    return buildAction;
   }
 
   private createDockerBuildAction(
@@ -267,41 +180,6 @@ export class PipelineStack extends cdk.Stack {
     return buildAction;
   }
 
-  private createCfnDeployAction(
-    cdkBuildOutput: codepipeline.Artifact,
-    stackName: string,
-    cloudformationRole: iam.IRole,
-    extraInputs: codepipeline.Artifact[] = [],
-    runOrder: number = 1
-  ): codepipeline_actions.CloudFormationCreateUpdateStackAction {
-    return new codepipeline_actions.CloudFormationCreateUpdateStackAction({
-      actionName: `Deploy-${stackName}`,
-      // Must be the same as the other stack name, e.g. `${props.project_code}-fargate`
-      stackName: stackName,
-      templatePath: cdkBuildOutput.atPath(
-        // Must be the same name as LambdaStack, e.g. `${stackName}.template.json`
-        `${stackName}.template.json`
-      ),
-      adminPermissions: true,
-      parameterOverrides: {
-        // Pass location of lambda code to Lambda Stack
-        // ...props.lambda_code.assign(
-        //   dockerBuildOutput.getParam(
-        //     "imagedefinitions.json",
-        //     "imagedefinitions"
-        //   )
-        // ),
-      },
-      extraInputs: extraInputs,
-      deploymentRole: cloudformationRole,
-      runOrder: runOrder,
-    });
-  }
-
-  private createBuildSpecFromFile(filepath: string) {
-    return codebuild.BuildSpec.fromSourceFilename(filepath);
-  }
-
   private createEcsDeployAction(
     input: codepipeline.Artifact,
     role: iam.IRole,
@@ -334,8 +212,7 @@ export class PipelineStack extends cdk.Stack {
         securityGroups: [],
       }
     );
-
-    const importedFargateService: ecs.FargateService =
+    this.importedFargateService =
       ecs.FargateService.fromFargateServiceAttributes(
         this,
         "imported-fargate-service",
@@ -356,7 +233,7 @@ export class PipelineStack extends cdk.Stack {
       input: input,
       /* Use imageFile if file name is not imagedefinitions.json */
       // imageFile: input.atPath("imageDef.json"),
-      service: importedFargateService,
+      service: this.importedFargateService,
       // deploymentTimeout: cdk.Duration.minutes(timeoutMinutes),
       role: role,
       runOrder: runOrder,
@@ -364,17 +241,29 @@ export class PipelineStack extends cdk.Stack {
     return ecsDeployAction;
   }
 
+  private createBuildSpecFromFile(filepath: string) {
+    return codebuild.BuildSpec.fromSourceFilename(filepath);
+  }
+
   private output() {
-    new cdk.CfnOutput(this, "BucketKmsKeyArn", {
-      value: this.key.keyArn,
-      exportName: `${this.project_code}-BucketKmsKeyArn`,
-    });
-    new cdk.CfnOutput(this, "EcrRepositoryName", {
-      value: this.ecrRepo.repositoryName,
-      exportName: `${this.project_code}-EcrRepositoryName`,
-    });
-    new cdk.CfnOutput(this, "PipelineName", {
+    new cdk.CfnOutput(this, "DeploymentPipelineName", {
       value: this.pipeline.pipelineName,
+    });
+
+    new cdk.CfnOutput(this, "importedFargateServiceName", {
+      value: this.importedFargateService.serviceName,
+    });
+
+    new cdk.CfnOutput(this, "importedFargateServiceArn", {
+      value: this.importedFargateService.serviceArn,
+    });
+
+    new cdk.CfnOutput(this, "importedFargateClusterName", {
+      value: this.importedFargateService.cluster.clusterName,
+    });
+
+    new cdk.CfnOutput(this, "importedFargateClusterArn", {
+      value: this.importedFargateService.cluster.clusterArn,
     });
   }
 }

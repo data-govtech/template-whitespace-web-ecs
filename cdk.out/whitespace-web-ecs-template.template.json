@@ -93,7 +93,93 @@
               "Effect": "Allow",
               "Resource": {
                 "Fn::GetAtt": [
-                  "whitespacewebecstemplatepipelineDeployCfnDeploywhitespacewebecstemplatefargateCodePipelineActionRole86F70AEE",
+                  "whitespacewebecstemplatepipelineDeployFargateDeploywhitespacewebecstemplatefargateCodePipelineActionRoleA5FCD323",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "codebuild:BatchGetBuilds",
+                "codebuild:StartBuild",
+                "codebuild:StopBuild"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "CodeBuildProject4B91CF3F",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "ecs:DescribeServices",
+                "ecs:DescribeTaskDefinition",
+                "ecs:DescribeTasks",
+                "ecs:ListTasks",
+                "ecs:RegisterTaskDefinition",
+                "ecs:UpdateService"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": "iam:PassRole",
+              "Condition": {
+                "StringEqualsIfExists": {
+                  "iam:PassedToService": [
+                    "ec2.amazonaws.com",
+                    "ecs-tasks.amazonaws.com"
+                  ]
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatekeyD70E57CE",
                   "Arn"
                 ]
               }
@@ -389,6 +475,290 @@
         "aws:cdk:path": "whitespace-web-ecs-template/CdkBuildProject/Resource"
       }
     },
+    "CodeBuildProjectRole2B162745": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "codebuild.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+              ]
+            ]
+          }
+        ],
+        "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/CodeBuildProject/Role/Resource"
+      }
+    },
+    "CodeBuildProjectRoleDefaultPolicy66975658": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CodeBuildProject4B91CF3F"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":logs:ap-southeast-1:305326993135:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CodeBuildProject4B91CF3F"
+                      },
+                      ":*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "codebuild:CreateReportGroup",
+                "codebuild:CreateReport",
+                "codebuild:UpdateReport",
+                "codebuild:BatchPutTestCases",
+                "codebuild:BatchPutCodeCoverages"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":codebuild:ap-southeast-1:305326993135:report-group/",
+                    {
+                      "Ref": "CodeBuildProject4B91CF3F"
+                    },
+                    "-*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:Abort*"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::cdk-artifactsbucket-305326993135-ap-southeast-1/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:DescribeKey",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatekeyD70E57CE",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:ReEncrypt*",
+                "kms:GenerateDataKey*"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "whitespacewebecstemplatekeyD70E57CE",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "CodeBuildProjectRoleDefaultPolicy66975658",
+        "Roles": [
+          {
+            "Ref": "CodeBuildProjectRole2B162745"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/CodeBuildProject/Role/DefaultPolicy/Resource"
+      }
+    },
+    "CodeBuildProject4B91CF3F": {
+      "Type": "AWS::CodeBuild::Project",
+      "Properties": {
+        "Artifacts": {
+          "Type": "CODEPIPELINE"
+        },
+        "Environment": {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "EnvironmentVariables": [
+            {
+              "Name": "REPOSITORY_URI",
+              "Type": "PLAINTEXT",
+              "Value": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::Select": [
+                        4,
+                        {
+                          "Fn::Split": [
+                            ":",
+                            {
+                              "Fn::GetAtt": [
+                                "whitespacewebecstemplateEcrREpo62C1E71A",
+                                "Arn"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    ".dkr.ecr.",
+                    {
+                      "Fn::Select": [
+                        3,
+                        {
+                          "Fn::Split": [
+                            ":",
+                            {
+                              "Fn::GetAtt": [
+                                "whitespacewebecstemplateEcrREpo62C1E71A",
+                                "Arn"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    ".",
+                    {
+                      "Ref": "AWS::URLSuffix"
+                    },
+                    "/",
+                    {
+                      "Ref": "whitespacewebecstemplateEcrREpo62C1E71A"
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "Name": "CONTAINER_NAME",
+              "Type": "PLAINTEXT",
+              "Value": {
+                "Fn::ImportValue": "whitespace-web-ecs-template-FargateClusterContainerName"
+              }
+            }
+          ],
+          "Image": "aws/codebuild/amazonlinux2-x86_64-standard:3.0",
+          "ImagePullCredentialsType": "CODEBUILD",
+          "PrivilegedMode": true,
+          "Type": "LINUX_CONTAINER"
+        },
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "CodeBuildProjectRole2B162745",
+            "Arn"
+          ]
+        },
+        "Source": {
+          "BuildSpec": "./buildspec.yml",
+          "Type": "CODEPIPELINE"
+        },
+        "EncryptionKey": {
+          "Fn::GetAtt": [
+            "whitespacewebecstemplatekeyD70E57CE",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template/CodeBuildProject/Resource"
+      }
+    },
     "whitespacewebecstemplatepipeline23D2CF22": {
       "Type": "AWS::CodePipeline::Pipeline",
       "Properties": {
@@ -477,14 +847,74 @@
                 "Name": "Deploy-whitespace-web-ecs-template-fargate",
                 "RoleArn": {
                   "Fn::GetAtt": [
-                    "whitespacewebecstemplatepipelineDeployCfnDeploywhitespacewebecstemplatefargateCodePipelineActionRole86F70AEE",
+                    "whitespacewebecstemplatepipelineDeployFargateDeploywhitespacewebecstemplatefargateCodePipelineActionRoleA5FCD323",
                     "Arn"
                   ]
                 },
                 "RunOrder": 1
               }
             ],
-            "Name": "DeployCfn"
+            "Name": "DeployFargate"
+          },
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Build",
+                  "Owner": "AWS",
+                  "Provider": "CodeBuild",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "ProjectName": {
+                    "Ref": "CodeBuildProject4B91CF3F"
+                  }
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "Artifact_Source_Github_Source"
+                  }
+                ],
+                "Name": "DockerBuild_Action",
+                "OutputArtifacts": [
+                  {
+                    "Name": "Artifact_BuildContainer_DockerBuild_Action"
+                  }
+                ],
+                "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
+                "RunOrder": 1
+              }
+            ],
+            "Name": "BuildContainer"
+          },
+          {
+            "Actions": [
+              {
+                "ActionTypeId": {
+                  "Category": "Deploy",
+                  "Owner": "AWS",
+                  "Provider": "ECS",
+                  "Version": "1"
+                },
+                "Configuration": {
+                  "ClusterName": {
+                    "Fn::ImportValue": "whitespace-web-ecs-template-FargateClusterName"
+                  },
+                  "ServiceName": {
+                    "Fn::ImportValue": "whitespace-web-ecs-template-FargateServiceName"
+                  }
+                },
+                "InputArtifacts": [
+                  {
+                    "Name": "Artifact_BuildContainer_DockerBuild_Action"
+                  }
+                ],
+                "Name": "EcsDeploy_Action",
+                "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
+                "RunOrder": 2
+              }
+            ],
+            "Name": "DeployEsc"
           }
         ],
         "ArtifactStore": {
@@ -533,7 +963,7 @@
         "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/Source/Github_Source/WebhookResource"
       }
     },
-    "whitespacewebecstemplatepipelineDeployCfnDeploywhitespacewebecstemplatefargateCodePipelineActionRole86F70AEE": {
+    "whitespacewebecstemplatepipelineDeployFargateDeploywhitespacewebecstemplatefargateCodePipelineActionRoleA5FCD323": {
       "Type": "AWS::IAM::Role",
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -562,10 +992,10 @@
         "PermissionsBoundary": "arn:aws:iam::305326993135:policy/GCCIAccountBoundary"
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/DeployCfn/Deploy-whitespace-web-ecs-template-fargate/CodePipelineActionRole/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/DeployFargate/Deploy-whitespace-web-ecs-template-fargate/CodePipelineActionRole/Resource"
       }
     },
-    "whitespacewebecstemplatepipelineDeployCfnDeploywhitespacewebecstemplatefargateCodePipelineActionRoleDefaultPolicyF9B4C0B3": {
+    "whitespacewebecstemplatepipelineDeployFargateDeploywhitespacewebecstemplatefargateCodePipelineActionRoleDefaultPolicyBD568D9A": {
       "Type": "AWS::IAM::Policy",
       "Properties": {
         "PolicyDocument": {
@@ -649,15 +1079,15 @@
           ],
           "Version": "2012-10-17"
         },
-        "PolicyName": "whitespacewebecstemplatepipelineDeployCfnDeploywhitespacewebecstemplatefargateCodePipelineActionRoleDefaultPolicyF9B4C0B3",
+        "PolicyName": "whitespacewebecstemplatepipelineDeployFargateDeploywhitespacewebecstemplatefargateCodePipelineActionRoleDefaultPolicyBD568D9A",
         "Roles": [
           {
-            "Ref": "whitespacewebecstemplatepipelineDeployCfnDeploywhitespacewebecstemplatefargateCodePipelineActionRole86F70AEE"
+            "Ref": "whitespacewebecstemplatepipelineDeployFargateDeploywhitespacewebecstemplatefargateCodePipelineActionRoleA5FCD323"
           }
         ]
       },
       "Metadata": {
-        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/DeployCfn/Deploy-whitespace-web-ecs-template-fargate/CodePipelineActionRole/DefaultPolicy/Resource"
+        "aws:cdk:path": "whitespace-web-ecs-template/whitespace-web-ecs-template-pipeline/DeployFargate/Deploy-whitespace-web-ecs-template-fargate/CodePipelineActionRole/DefaultPolicy/Resource"
       }
     },
     "CDKMetadata": {
