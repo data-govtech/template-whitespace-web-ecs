@@ -4,7 +4,7 @@ import * as cdk from "@aws-cdk/core";
 import { PermissionsBoundary } from "../cdk-common/permission-boundary";
 import { FargateStack } from "../lib/fargate-stack";
 import { PipelineStack } from "../lib/pipeline-stack";
-// import { DeploymentStack } from "../lib/deployment-stack";
+import { DeploymentStack } from "../lib/deployment-stack";
 
 // Load .env file and construct tags
 require("dotenv").config();

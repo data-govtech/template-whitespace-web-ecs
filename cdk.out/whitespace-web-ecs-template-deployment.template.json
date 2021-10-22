@@ -451,14 +451,14 @@
                 "Name": "DockerBuild_Action",
                 "OutputArtifacts": [
                   {
-                    "Name": "Artifact_Build_DockerBuild_Action"
+                    "Name": "Artifact_BuildContainer_DockerBuild_Action"
                   }
                 ],
                 "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
                 "RunOrder": 1
               }
             ],
-            "Name": "Build"
+            "Name": "BuildContainer"
           },
           {
             "Actions": [
@@ -479,15 +479,15 @@
                 },
                 "InputArtifacts": [
                   {
-                    "Name": "Artifact_Build_DockerBuild_Action"
+                    "Name": "Artifact_BuildContainer_DockerBuild_Action"
                   }
                 ],
                 "Name": "EcsDeploy_Action",
                 "RoleArn": "arn:aws:iam::305326993135:role/AWSCodePipelineRole",
-                "RunOrder": 2
+                "RunOrder": 1
               }
             ],
-            "Name": "Deploy"
+            "Name": "DeployECS"
           }
         ],
         "ArtifactStore": {

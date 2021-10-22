@@ -4,10 +4,6 @@ import * as ecsPatterns from "@aws-cdk/aws-ecs-patterns";
 import * as ecr from "@aws-cdk/aws-ecr";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as iam from "@aws-cdk/aws-iam";
-import * as elb from "@aws-cdk/aws-elasticloadbalancingv2";
-import * as route53 from "@aws-cdk/aws-route53";
-import * as route53_target from "@aws-cdk/aws-route53-targets";
-import * as cert_manager from "@aws-cdk/aws-certificatemanager";
 import { IRole } from "@aws-cdk/aws-iam";
 
 export interface FargateStackProps extends cdk.StackProps {
@@ -28,7 +24,7 @@ export interface FargateStackProps extends cdk.StackProps {
 export class FargateStack extends cdk.Stack {
   public readonly project_code: string;
   public readonly ecsCluster: ecs.Cluster;
-  public readonly fargateService: ecs.FargateService;
+  // public readonly fargateService: ecs.FargateService;
   public readonly fargateTask: ecs.FargateTaskDefinition;
 
   public readonly ecrRepo: ecr.IRepository;
@@ -36,7 +32,7 @@ export class FargateStack extends cdk.Stack {
   public readonly public_subnets: ec2.ISubnet[];
   public readonly private_subnets: ec2.ISubnet[];
 
-  public readonly fargateSecurityGroup: ec2.SecurityGroup;
+  // public readonly fargateSecurityGroup: ec2.SecurityGroup;
 
   constructor(scope: cdk.Construct, id: string, props: FargateStackProps) {
     super(scope, id, props);
@@ -100,34 +96,34 @@ export class FargateStack extends cdk.Stack {
     /* Grant agentExecutionRole rights to access ecrRepo */
     this.ecrRepo.grantPull(agentExecutionRole.grantPrincipal);
 
-    /* ECS Cluster and Service used to deploy ECS Task */
-    // Security group to allow connections from the ALB to fargate containers
-    this.fargateSecurityGroup = new ec2.SecurityGroup(
-      this,
-      "ecs-security-group",
-      { vpc: this.vpc, allowAllOutbound: true }
-    );
+    // /* ECS Cluster and Service used to deploy ECS Task */
+    // // Security group to allow connections from the ALB to fargate containers
+    // this.fargateSecurityGroup = new ec2.SecurityGroup(
+    //   this,
+    //   "ecs-security-group",
+    //   { vpc: this.vpc, allowAllOutbound: true }
+    // );
 
-    this.fargateService = new ecs.FargateService(this, "fargate-service", {
-      cluster: this.ecsCluster,
-      desiredCount: 1,
-      taskDefinition: this.fargateTask,
-      securityGroups: [this.fargateSecurityGroup],
-      assignPublicIp: true,
-      vpcSubnets: { subnets: this.private_subnets },
-      platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
-    });
+    // this.fargateService = new ecs.FargateService(this, "fargate-service", {
+    //   cluster: this.ecsCluster,
+    //   desiredCount: 1,
+    //   taskDefinition: this.fargateTask,
+    //   securityGroups: [this.fargateSecurityGroup],
+    //   assignPublicIp: true,
+    //   vpcSubnets: { subnets: this.private_subnets },
+    //   platformVersion: ecs.FargatePlatformVersion.VERSION1_4,
+    // });
 
-    // Add autoscaling to fargate cluster
-    this.addAutoScaleFargateService();
+    // // Add autoscaling to fargate cluster
+    // this.addAutoScaleFargateService();
 
-    // Add ALB to fargate cluster
-    this.addAlbToFargateService({
-      domain_name: props.domain_name!,
-      hosted_zone_name: props.hosted_zone_name!,
-      hosted_zone_id: props.hosted_zone_id!,
-      certificate_arn: props.certificate_arn!,
-    });
+    // // Add ALB to fargate cluster
+    // this.addAlbToFargateService({
+    //   domain_name: props.domain_name!,
+    //   hosted_zone_name: props.hosted_zone_name!,
+    //   hosted_zone_id: props.hosted_zone_id!,
+    //   certificate_arn: props.certificate_arn!,
+    // });
 
     this.output();
   }
@@ -264,148 +260,148 @@ export class FargateStack extends cdk.Stack {
     );
   }
 
-  private addAutoScaleFargateService() {
-    // Autoscaling based on memory and CPU usage
-    const scalableTarget = this.fargateService.autoScaleTaskCount({
-      minCapacity: 1,
-      maxCapacity: 10,
-    });
+  // private addAutoScaleFargateService() {
+  //   // Autoscaling based on memory and CPU usage
+  //   const scalableTarget = this.fargateService.autoScaleTaskCount({
+  //     minCapacity: 1,
+  //     maxCapacity: 10,
+  //   });
 
-    scalableTarget.scaleOnMemoryUtilization("ScaleUpMem", {
-      targetUtilizationPercent: 75,
-      scaleInCooldown: cdk.Duration.seconds(60),
-      scaleOutCooldown: cdk.Duration.seconds(60),
-    });
+  //   scalableTarget.scaleOnMemoryUtilization("ScaleUpMem", {
+  //     targetUtilizationPercent: 75,
+  //     scaleInCooldown: cdk.Duration.seconds(60),
+  //     scaleOutCooldown: cdk.Duration.seconds(60),
+  //   });
 
-    scalableTarget.scaleOnCpuUtilization("ScaleUpCPU", {
-      targetUtilizationPercent: 75,
-      scaleInCooldown: cdk.Duration.seconds(60),
-      scaleOutCooldown: cdk.Duration.seconds(60),
-    });
-  }
+  //   scalableTarget.scaleOnCpuUtilization("ScaleUpCPU", {
+  //     targetUtilizationPercent: 75,
+  //     scaleInCooldown: cdk.Duration.seconds(60),
+  //     scaleOutCooldown: cdk.Duration.seconds(60),
+  //   });
+  // }
 
-  private addAlbToFargateService(props: {
-    hosted_zone_name: string;
-    hosted_zone_id: string;
-    domain_name: string;
-    certificate_arn: string;
-  }) {
-    // /* ####################################### */
-    // /* Define TargetGroup, ALB, Listener       */
+  // private addAlbToFargateService(props: {
+  //   hosted_zone_name: string;
+  //   hosted_zone_id: string;
+  //   domain_name: string;
+  //   certificate_arn: string;
+  // }) {
+  //   // /* ####################################### */
+  //   // /* Define TargetGroup, ALB, Listener       */
 
-    const alb = new elb.ApplicationLoadBalancer(this, "alb", {
-      vpc: this.vpc,
-      internetFacing: true,
-      vpcSubnets: { subnets: this.public_subnets },
-    });
+  //   const alb = new elb.ApplicationLoadBalancer(this, "alb", {
+  //     vpc: this.vpc,
+  //     internetFacing: true,
+  //     vpcSubnets: { subnets: this.public_subnets },
+  //   });
 
-    const targetGroup = new elb.ApplicationTargetGroup(
-      this,
-      "target-group-http",
-      {
-        port: 80,
-        vpc: this.vpc,
-        protocol: elb.ApplicationProtocol.HTTP,
-        targetType: elb.TargetType.IP,
-      }
-    );
+  //   const targetGroup = new elb.ApplicationTargetGroup(
+  //     this,
+  //     "target-group-http",
+  //     {
+  //       port: 80,
+  //       vpc: this.vpc,
+  //       protocol: elb.ApplicationProtocol.HTTP,
+  //       targetType: elb.TargetType.IP,
+  //     }
+  //   );
 
-    targetGroup.configureHealthCheck({
-      path: "/",
-      protocol: elb.Protocol.HTTP,
-    });
+  //   targetGroup.configureHealthCheck({
+  //     path: "/",
+  //     protocol: elb.Protocol.HTTP,
+  //   });
 
-    this.fargateService.attachToApplicationTargetGroup(targetGroup);
+  //   this.fargateService.attachToApplicationTargetGroup(targetGroup);
 
-    let zone = route53.PublicHostedZone.fromHostedZoneAttributes(
-      this,
-      "hosted-zone",
-      {
-        zoneName: props.hosted_zone_name!,
-        hostedZoneId: props.hosted_zone_id!,
-      }
-    );
+  //   let zone = route53.PublicHostedZone.fromHostedZoneAttributes(
+  //     this,
+  //     "hosted-zone",
+  //     {
+  //       zoneName: props.hosted_zone_name!,
+  //       hostedZoneId: props.hosted_zone_id!,
+  //     }
+  //   );
 
-    let listener: elb.ApplicationListener;
+  //   let listener: elb.ApplicationListener;
 
-    if (props.domain_name) {
-      /* Works when domain is owned by the account */
-      // const certificate = new cert_manager.DnsValidatedCertificate(
-      //   this,
-      //   "certificate",
-      //   {
-      //     domainName: props.domain_name,
-      //     hostedZone: zone,
-      //     region: "ap-southeast-1",
-      //   }
-      // );
+  //   if (props.domain_name) {
+  //     /* Works when domain is owned by the account */
+  //     // const certificate = new cert_manager.DnsValidatedCertificate(
+  //     //   this,
+  //     //   "certificate",
+  //     //   {
+  //     //     domainName: props.domain_name,
+  //     //     hostedZone: zone,
+  //     //     region: "ap-southeast-1",
+  //     //   }
+  //     // );
 
-      /* Works when domain is owned by another account */
-      const certificate = cert_manager.Certificate.fromCertificateArn(
-        this,
-        "certificateImported",
-        props.certificate_arn
-      );
+  //     /* Works when domain is owned by another account */
+  //     const certificate = cert_manager.Certificate.fromCertificateArn(
+  //       this,
+  //       "certificateImported",
+  //       props.certificate_arn
+  //     );
 
-      listener = alb.addListener("alb-listener", {
-        open: true,
-        port: 443,
-        certificates: [certificate],
-      });
-    } else {
-      listener = alb.addListener("alb-listener", {
-        open: true,
-        port: 80,
-      });
-    }
+  //     listener = alb.addListener("alb-listener", {
+  //       open: true,
+  //       port: 443,
+  //       certificates: [certificate],
+  //     });
+  //   } else {
+  //     listener = alb.addListener("alb-listener", {
+  //       open: true,
+  //       port: 80,
+  //     });
+  //   }
 
-    listener.addTargetGroups("alb-listener-target-group", {
-      targetGroups: [targetGroup],
-    });
+  //   listener.addTargetGroups("alb-listener-target-group", {
+  //     targetGroups: [targetGroup],
+  //   });
 
-    // Enable a redirect from port 80 to 443
-    alb.addRedirect();
+  //   // Enable a redirect from port 80 to 443
+  //   alb.addRedirect();
 
-    /* Add security group to ALB */
-    const alb_sg = new ec2.SecurityGroup(this, "alb-security-group", {
-      vpc: this.vpc,
-      allowAllOutbound: true,
-    });
+  //   /* Add security group to ALB */
+  //   const alb_sg = new ec2.SecurityGroup(this, "alb-security-group", {
+  //     vpc: this.vpc,
+  //     allowAllOutbound: true,
+  //   });
 
-    alb_sg.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(443),
-      "Allow https traffic"
-    );
-    alb.addSecurityGroup(alb_sg);
+  //   alb_sg.addIngressRule(
+  //     ec2.Peer.anyIpv4(),
+  //     ec2.Port.tcp(443),
+  //     "Allow https traffic"
+  //   );
+  //   alb.addSecurityGroup(alb_sg);
 
-    // Set Fargate allow connections from alb
-    this.fargateSecurityGroup.connections.allowFrom(
-      alb_sg,
-      ec2.Port.allTcp(),
-      "ALB to Fargate"
-    );
+  //   // Set Fargate allow connections from alb
+  //   this.fargateSecurityGroup.connections.allowFrom(
+  //     alb_sg,
+  //     ec2.Port.allTcp(),
+  //     "ALB to Fargate"
+  //   );
 
-    /* ####################################### */
-    /* Route53 A Record                        */
-    if (props.domain_name) {
-      const arecord = new route53.ARecord(this, "AliasRecrod", {
-        zone,
-        recordName: props.domain_name,
-        target: route53.RecordTarget.fromAlias(
-          new route53_target.LoadBalancerTarget(alb)
-        ),
-      });
-      arecord.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
-    }
-  }
+  //   /* ####################################### */
+  //   /* Route53 A Record                        */
+  //   if (props.domain_name) {
+  //     const arecord = new route53.ARecord(this, "AliasRecrod", {
+  //       zone,
+  //       recordName: props.domain_name,
+  //       target: route53.RecordTarget.fromAlias(
+  //         new route53_target.LoadBalancerTarget(alb)
+  //       ),
+  //     });
+  //     arecord.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
+  //   }
+  // }
 
   private output() {
-    new cdk.CfnOutput(this, "fargate-cluster-security-group-id", {
-      value: this.fargateSecurityGroup.securityGroupId,
-      exportName: `${this.project_code}-FargateClusterSecurityGroupId`,
-      description: "ID of Security Group used by Fargate Cluster",
-    });
+    // new cdk.CfnOutput(this, "fargate-cluster-security-group-id", {
+    //   value: this.fargateSecurityGroup.securityGroupId,
+    //   exportName: `${this.project_code}-FargateClusterSecurityGroupId`,
+    //   description: "ID of Security Group used by Fargate Cluster",
+    // });
 
     new cdk.CfnOutput(this, "FargateClusterVpcId", {
       value: this.vpc.vpcId,
@@ -416,6 +412,11 @@ export class FargateStack extends cdk.Stack {
     new cdk.CfnOutput(this, "FargateClusterContainerName", {
       value: this.fargateTask.defaultContainer!.containerName,
       exportName: `${this.project_code}-FargateClusterContainerName`,
+    });
+
+    new cdk.CfnOutput(this, "FargateTaskDefinitionArn", {
+      value: this.fargateTask.taskDefinitionArn,
+      exportName: `${this.project_code}-FargateTaskDefinitionArn`,
     });
 
     new cdk.CfnOutput(this, "FargateClusterArn", {
@@ -430,15 +431,15 @@ export class FargateStack extends cdk.Stack {
       description: "Name of Cluster used in Fargate Service",
     });
 
-    new cdk.CfnOutput(this, "FargateServiceName", {
-      value: this.fargateService.serviceName,
-      exportName: `${this.project_code}-FargateServiceName`,
-    });
+    // new cdk.CfnOutput(this, "FargateServiceName", {
+    //   value: this.fargateService.serviceName,
+    //   exportName: `${this.project_code}-FargateServiceName`,
+    // });
 
-    new cdk.CfnOutput(this, "FargateServiceArn", {
-      value: this.fargateService.serviceArn,
-      exportName: `${this.project_code}-FargateServiceArn`,
-      description: "ARN of Fargate Service",
-    });
+    // new cdk.CfnOutput(this, "FargateServiceArn", {
+    //   value: this.fargateService.serviceArn,
+    //   exportName: `${this.project_code}-FargateServiceArn`,
+    //   description: "ARN of Fargate Service",
+    // });
   }
 }

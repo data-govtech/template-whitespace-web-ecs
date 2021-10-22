@@ -99,19 +99,10 @@ export class PipelineStack extends cdk.Stack {
               cdkBuildOutput,
               pipelineRole
             ),
-            // this.createDockerBuildAction(
-            //   sourceOutput,
-            //   dockerBuildOutput,
-            //   pipelineRole,
-            //   {
-            //     repositoryUri: this.ecrRepo.repositoryUri,
-            //     containerName: "",
-            //   }
-            // ),
           ],
         },
         {
-          stageName: "DeployFargate",
+          stageName: "DeployCfn",
           actions: [
             this.createCfnDeployAction(
               cdkBuildOutput,
@@ -129,33 +120,33 @@ export class PipelineStack extends cdk.Stack {
             // ),
           ],
         },
-        {
-          stageName: "BuildContainer",
-          actions: [
-            this.createDockerBuildAction(
-              sourceOutput,
-              dockerBuildOutput,
-              pipelineRole,
-              {
-                repositoryUri: this.ecrRepo.repositoryUri,
-                containerName: cdk.Fn.importValue(
-                  `${this.project_code}-FargateClusterContainerName`
-                ),
-              }
-            ),
-          ],
-        },
-        {
-          stageName: "DeployEsc",
-          actions: [
-            this.createEcsDeployAction(
-              dockerBuildOutput,
-              pipelineRole,
-              props.vpc_id,
-              2
-            ),
-          ],
-        },
+        // {
+        //   stageName: "BuildContainer",
+        //   actions: [
+        //     this.createDockerBuildAction(
+        //       sourceOutput,
+        //       dockerBuildOutput,
+        //       pipelineRole,
+        //       {
+        //         repositoryUri: this.ecrRepo.repositoryUri,
+        //         containerName: cdk.Fn.importValue(
+        //           `${this.project_code}-FargateClusterContainerName`
+        //         ),
+        //       }
+        //     ),
+        //   ],
+        // },
+        // {
+        //   stageName: "DeployEsc",
+        //   actions: [
+        //     this.createEcsDeployAction(
+        //       dockerBuildOutput,
+        //       pipelineRole,
+        //       props.vpc_id,
+        //       2
+        //     ),
+        //   ],
+        // },
       ],
     });
   }
@@ -230,42 +221,42 @@ export class PipelineStack extends cdk.Stack {
     return buildAction;
   }
 
-  private createDockerBuildAction(
-    input: codepipeline.Artifact,
-    output: codepipeline.Artifact,
-    role: iam.IRole,
-    props: { repositoryUri: string; containerName: string },
-    runOrder: number = 1
-  ): codepipeline_actions.CodeBuildAction {
-    const project = new codebuild.PipelineProject(this, "CodeBuildProject", {
-      environment: {
-        buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_3,
-        privileged: true,
-      },
-      buildSpec: this.createBuildSpecFromFile("./buildspec.yml"),
-      environmentVariables: {
-        REPOSITORY_URI: { value: props.repositoryUri },
-        CONTAINER_NAME: { value: props.containerName },
-      },
-    });
-    // this.ecrRepo.grantPullPush(project.grantPrincipal);
-    project.role?.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
-        "AmazonEC2ContainerRegistryPowerUser"
-      )
-    );
+  // private createDockerBuildAction(
+  //   input: codepipeline.Artifact,
+  //   output: codepipeline.Artifact,
+  //   role: iam.IRole,
+  //   props: { repositoryUri: string; containerName: string },
+  //   runOrder: number = 1
+  // ): codepipeline_actions.CodeBuildAction {
+  //   const project = new codebuild.PipelineProject(this, "CodeBuildProject", {
+  //     environment: {
+  //       buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_3,
+  //       privileged: true,
+  //     },
+  //     buildSpec: this.createBuildSpecFromFile("./buildspec.yml"),
+  //     environmentVariables: {
+  //       REPOSITORY_URI: { value: props.repositoryUri },
+  //       CONTAINER_NAME: { value: props.containerName },
+  //     },
+  //   });
+  //   // this.ecrRepo.grantPullPush(project.grantPrincipal);
+  //   project.role?.addManagedPolicy(
+  //     ManagedPolicy.fromAwsManagedPolicyName(
+  //       "AmazonEC2ContainerRegistryPowerUser"
+  //     )
+  //   );
 
-    const buildAction = new codepipeline_actions.CodeBuildAction({
-      actionName: "DockerBuild_Action",
-      project: project,
-      input: input,
-      outputs: [output],
-      role: role,
-      runOrder: runOrder,
-    });
+  //   const buildAction = new codepipeline_actions.CodeBuildAction({
+  //     actionName: "DockerBuild_Action",
+  //     project: project,
+  //     input: input,
+  //     outputs: [output],
+  //     role: role,
+  //     runOrder: runOrder,
+  //   });
 
-    return buildAction;
-  }
+  //   return buildAction;
+  // }
 
   private createCfnDeployAction(
     cdkBuildOutput: codepipeline.Artifact,
@@ -302,67 +293,67 @@ export class PipelineStack extends cdk.Stack {
     return codebuild.BuildSpec.fromSourceFilename(filepath);
   }
 
-  private createEcsDeployAction(
-    input: codepipeline.Artifact,
-    role: iam.IRole,
-    vpcId: string,
-    runOrder: number = 1,
-    timeoutMinutes: number = 30
-  ): codepipeline_actions.EcsDeployAction {
-    const importedSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(
-      this,
-      "imported-security-group",
-      cdk.Fn.importValue(`${this.project_code}-FargateClusterSecurityGroupId`)
-    );
-    const vpc = ec2.Vpc.fromVpcAttributes(this, `${this.stackName}-vpc`, {
-      vpcId: vpcId,
-      availabilityZones: [
-        "ap-southeast-1a",
-        "ap-southeast-1b",
-        "ap-southeast-1c",
-      ],
-    });
+  // private createEcsDeployAction(
+  //   input: codepipeline.Artifact,
+  //   role: iam.IRole,
+  //   vpcId: string,
+  //   runOrder: number = 1,
+  //   timeoutMinutes: number = 30
+  // ): codepipeline_actions.EcsDeployAction {
+  //   const importedSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(
+  //     this,
+  //     "imported-security-group",
+  //     cdk.Fn.importValue(`${this.project_code}-FargateClusterSecurityGroupId`)
+  //   );
+  //   const vpc = ec2.Vpc.fromVpcAttributes(this, `${this.stackName}-vpc`, {
+  //     vpcId: vpcId,
+  //     availabilityZones: [
+  //       "ap-southeast-1a",
+  //       "ap-southeast-1b",
+  //       "ap-southeast-1c",
+  //     ],
+  //   });
 
-    const importedCluster = ecs.Cluster.fromClusterAttributes(
-      this,
-      "imported-fargate-cluster",
-      {
-        clusterName: cdk.Fn.importValue(
-          `${this.project_code}-FargateClusterName`
-        ),
-        vpc: vpc,
-        securityGroups: [],
-      }
-    );
+  //   const importedCluster = ecs.Cluster.fromClusterAttributes(
+  //     this,
+  //     "imported-fargate-cluster",
+  //     {
+  //       clusterName: cdk.Fn.importValue(
+  //         `${this.project_code}-FargateClusterName`
+  //       ),
+  //       vpc: vpc,
+  //       securityGroups: [],
+  //     }
+  //   );
 
-    const importedFargateService: ecs.FargateService =
-      ecs.FargateService.fromFargateServiceAttributes(
-        this,
-        "imported-fargate-service",
-        {
-          serviceName: cdk.Fn.importValue(
-            `${this.project_code}-FargateServiceName`
-          ),
-          // Bug: reported at https://github.com/aws/aws-cdk/issues/16634
-          // serviceArn: cdk.Fn.importValue(
-          //   `${this.project_code}-FargateServiceArn`
-          // ),
-          cluster: importedCluster,
-        }
-      ) as ecs.FargateService;
+  //   const importedFargateService: ecs.FargateService =
+  //     ecs.FargateService.fromFargateServiceAttributes(
+  //       this,
+  //       "imported-fargate-service",
+  //       {
+  //         serviceName: cdk.Fn.importValue(
+  //           `${this.project_code}-FargateServiceName`
+  //         ),
+  //         // Bug: reported at https://github.com/aws/aws-cdk/issues/16634
+  //         // serviceArn: cdk.Fn.importValue(
+  //         //   `${this.project_code}-FargateServiceArn`
+  //         // ),
+  //         cluster: importedCluster,
+  //       }
+  //     ) as ecs.FargateService;
 
-    const ecsDeployAction = new codepipeline_actions.EcsDeployAction({
-      actionName: "EcsDeploy_Action",
-      input: input,
-      /* Use imageFile if file name is not imagedefinitions.json */
-      // imageFile: input.atPath("imageDef.json"),
-      service: importedFargateService,
-      // deploymentTimeout: cdk.Duration.minutes(timeoutMinutes),
-      role: role,
-      runOrder: runOrder,
-    });
-    return ecsDeployAction;
-  }
+  //   const ecsDeployAction = new codepipeline_actions.EcsDeployAction({
+  //     actionName: "EcsDeploy_Action",
+  //     input: input,
+  //     /* Use imageFile if file name is not imagedefinitions.json */
+  //     // imageFile: input.atPath("imageDef.json"),
+  //     service: importedFargateService,
+  //     // deploymentTimeout: cdk.Duration.minutes(timeoutMinutes),
+  //     role: role,
+  //     runOrder: runOrder,
+  //   });
+  //   return ecsDeployAction;
+  // }
 
   private output() {
     new cdk.CfnOutput(this, "BucketKmsKeyArn", {
