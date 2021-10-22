@@ -1,5 +1,4 @@
 import * as cdk from "@aws-cdk/core";
-import { FargateStack } from "./fargate-stack";
 import * as ecs from "@aws-cdk/aws-ecs";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as ecr from "@aws-cdk/aws-ecr";
@@ -23,6 +22,8 @@ export interface PipelineStackProps extends cdk.StackProps {
   code_repo_branch: string;
   code_repo_secret_var?: string;
   code_repo_owner?: string;
+  // others
+  readonly vpc_id: string;
 }
 
 export class PipelineStack extends cdk.Stack {
@@ -91,26 +92,26 @@ export class PipelineStack extends cdk.Stack {
           actions: [this.createSourceAction(sourceOutput, { ...props })],
         },
         {
-          stageName: "Build",
+          stageName: "BuildCdk",
           actions: [
             this.createCdkBuildAction(
               sourceOutput,
               cdkBuildOutput,
               pipelineRole
             ),
-            this.createDockerBuildAction(
-              sourceOutput,
-              dockerBuildOutput,
-              pipelineRole,
-              {
-                repositoryUri: this.ecrRepo.repositoryUri,
-                containerName: "",
-              }
-            ),
+            // this.createDockerBuildAction(
+            //   sourceOutput,
+            //   dockerBuildOutput,
+            //   pipelineRole,
+            //   {
+            //     repositoryUri: this.ecrRepo.repositoryUri,
+            //     containerName: "",
+            //   }
+            // ),
           ],
         },
         {
-          stageName: "Deploy",
+          stageName: "DeployFargate",
           actions: [
             this.createCfnDeployAction(
               cdkBuildOutput,
@@ -119,11 +120,38 @@ export class PipelineStack extends cdk.Stack {
               [],
               1
             ),
-            this.createCfnDeployAction(
-              cdkBuildOutput,
-              `${props.project_code}-deployment`,
-              cloudFormationRole,
-              [],
+            // this.createCfnDeployAction(
+            //   cdkBuildOutput,
+            //   `${props.project_code}-deployment`,
+            //   cloudFormationRole,
+            //   [],
+            //   2
+            // ),
+          ],
+        },
+        {
+          stageName: "BuildContainer",
+          actions: [
+            this.createDockerBuildAction(
+              sourceOutput,
+              dockerBuildOutput,
+              pipelineRole,
+              {
+                repositoryUri: this.ecrRepo.repositoryUri,
+                containerName: cdk.Fn.importValue(
+                  `${this.project_code}-FargateClusterContainerName`
+                ),
+              }
+            ),
+          ],
+        },
+        {
+          stageName: "DeployEsc",
+          actions: [
+            this.createEcsDeployAction(
+              dockerBuildOutput,
+              pipelineRole,
+              props.vpc_id,
               2
             ),
           ],
@@ -272,6 +300,68 @@ export class PipelineStack extends cdk.Stack {
 
   private createBuildSpecFromFile(filepath: string) {
     return codebuild.BuildSpec.fromSourceFilename(filepath);
+  }
+
+  private createEcsDeployAction(
+    input: codepipeline.Artifact,
+    role: iam.IRole,
+    vpcId: string,
+    runOrder: number = 1,
+    timeoutMinutes: number = 30
+  ): codepipeline_actions.EcsDeployAction {
+    const importedSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(
+      this,
+      "imported-security-group",
+      cdk.Fn.importValue(`${this.project_code}-FargateClusterSecurityGroupId`)
+    );
+    const vpc = ec2.Vpc.fromVpcAttributes(this, `${this.stackName}-vpc`, {
+      vpcId: vpcId,
+      availabilityZones: [
+        "ap-southeast-1a",
+        "ap-southeast-1b",
+        "ap-southeast-1c",
+      ],
+    });
+
+    const importedCluster = ecs.Cluster.fromClusterAttributes(
+      this,
+      "imported-fargate-cluster",
+      {
+        clusterName: cdk.Fn.importValue(
+          `${this.project_code}-FargateClusterName`
+        ),
+        vpc: vpc,
+        securityGroups: [],
+      }
+    );
+
+    const importedFargateService: ecs.FargateService =
+      ecs.FargateService.fromFargateServiceAttributes(
+        this,
+        "imported-fargate-service",
+        {
+          serviceName: cdk.Fn.importValue(
+            `${this.project_code}-FargateServiceName`
+          ),
+          // Bug: reported at https://github.com/aws/aws-cdk/issues/16634
+          // serviceArn: cdk.Fn.importValue(
+          //   `${this.project_code}-FargateServiceArn`
+          // ),
+          cluster: importedCluster,
+        }
+      ) as ecs.FargateService;
+
+    const ecsDeployAction = new codepipeline_actions.EcsDeployAction({
+      actionName: "EcsDeploy_Action",
+      input: input,
+      /* Use imageFile if file name is not imagedefinitions.json */
+      // imageFile: input.atPath("imageDef.json"),
+      service: importedFargateService,
+      // deploymentTimeout: cdk.Duration.minutes(timeoutMinutes),
+      role: role,
+      runOrder: runOrder,
+    });
+    return ecsDeployAction;
   }
 
   private output() {

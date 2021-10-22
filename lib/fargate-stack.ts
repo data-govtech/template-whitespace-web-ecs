@@ -15,8 +15,9 @@ export interface FargateStackProps extends cdk.StackProps {
   // readonly container_image?: ecs.ContainerImage;
   readonly vpc_id: string;
   readonly public_subnet_ids: string[];
-  readonly route_table_id: string;
+  readonly public_route_table_id: string;
   readonly private_subnet_ids: string[];
+  readonly private_route_table_id: string;
   // domain
   readonly domain_name?: string;
   readonly hosted_zone_name?: string;
@@ -32,7 +33,7 @@ export class FargateStack extends cdk.Stack {
 
   public readonly ecrRepo: ecr.IRepository;
   public readonly vpc: ec2.IVpc;
-  public readonly subnets: ec2.ISubnet[];
+  public readonly public_subnets: ec2.ISubnet[];
   public readonly private_subnets: ec2.ISubnet[];
 
   public readonly fargateSecurityGroup: ec2.SecurityGroup;
@@ -47,20 +48,22 @@ export class FargateStack extends cdk.Stack {
       vpcId: props.vpc_id,
     });
 
-    const routeTableId = props.route_table_id;
-    this.subnets = props.public_subnet_ids
+    const routeTableIdPublic = props.public_route_table_id;
+    this.public_subnets = props.public_subnet_ids
       ? props.public_subnet_ids.map((subnetId) =>
           ec2.Subnet.fromSubnetAttributes(this, subnetId, {
             subnetId,
-            routeTableId,
+            routeTableId: routeTableIdPublic,
           })
         )
       : this.vpc.publicSubnets;
 
+    const routeTableIdPrivate = props.private_route_table_id;
     this.private_subnets = props.private_subnet_ids
       ? props.private_subnet_ids.map((subnetId) =>
           ec2.Subnet.fromSubnetAttributes(this, subnetId, {
             subnetId,
+            routeTableId: routeTableIdPrivate,
           })
         )
       : this.vpc.privateSubnets;
@@ -293,7 +296,7 @@ export class FargateStack extends cdk.Stack {
     const alb = new elb.ApplicationLoadBalancer(this, "alb", {
       vpc: this.vpc,
       internetFacing: true,
-      vpcSubnets: { subnets: this.subnets },
+      vpcSubnets: { subnets: this.public_subnets },
     });
 
     const targetGroup = new elb.ApplicationTargetGroup(

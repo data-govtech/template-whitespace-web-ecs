@@ -4,7 +4,7 @@ import * as cdk from "@aws-cdk/core";
 import { PermissionsBoundary } from "../cdk-common/permission-boundary";
 import { FargateStack } from "../lib/fargate-stack";
 import { PipelineStack } from "../lib/pipeline-stack";
-import { DeploymentStack } from "../lib/deployment-stack";
+// import { DeploymentStack } from "../lib/deployment-stack";
 
 // Load .env file and construct tags
 require("dotenv").config();
@@ -40,17 +40,18 @@ const props = {
   artifact_bucket_name: process.env.AWS_ARTIFACT_BUCKET_NAME!,
 
   vpc_id: process.env.VPC_ID!,
-  public_subnet_ids: process.env.SUBNET_IDS
-    ? process.env.SUBNET_IDS.split(",")
+  public_subnet_ids: process.env.PUBLIC_SUBNET_IDS
+    ? process.env.PUBLIC_SUBNET_IDS.split(",")
         .map((one) => one.trim())
         .filter((n) => n)
     : [],
-  route_table_id: process.env.ROUTE_TABLE_ID!,
+  public_route_table_id: process.env.PUBLIC_ROUTE_TABLE_ID!,
   private_subnet_ids: process.env.PRIVATE_SUBNET_IDS
     ? process.env.PRIVATE_SUBNET_IDS.split(",")
         .map((one) => one.trim())
         .filter((n) => n)
     : [],
+  private_route_table_id: process.env.PRIVATE_ROUTE_TABLE_ID!,
 
   domain_name: process.env.DOMAIN_NAME,
   hosted_zone_name: process.env.HOSTED_ZONE_NAME,
@@ -66,35 +67,35 @@ const env = {
 const app = new cdk.App();
 
 /* Create stacks */
-const fargateStack = new FargateStack(app, `${project_code}-fargate`, {
-  ...props,
-  env: env,
-  tags: tags,
-});
-
-const deploymentStack = new DeploymentStack(app, `${project_code}-deployment`, {
-  ...props,
-  env: env,
-  tags: tags,
-});
-
 const pipelineStack = new PipelineStack(app, `${project_code}`, {
   ...props,
   env: env,
   tags: tags,
 });
 
+const fargateStack = new FargateStack(app, `${project_code}-fargate`, {
+  ...props,
+  env: env,
+  tags: tags,
+});
+
+// const deploymentStack = new DeploymentStack(app, `${project_code}-deployment`, {
+//   ...props,
+//   env: env,
+//   tags: tags,
+// });
+
 /* Set permission boundary */
 if (AWS_POLICY_PERM_BOUNDARY) {
-  cdk.Aspects.of(fargateStack).add(
-    new PermissionsBoundary(AWS_POLICY_PERM_BOUNDARY)
-  );
-  cdk.Aspects.of(deploymentStack).add(
-    new PermissionsBoundary(AWS_POLICY_PERM_BOUNDARY)
-  );
   cdk.Aspects.of(pipelineStack).add(
     new PermissionsBoundary(AWS_POLICY_PERM_BOUNDARY)
   );
+  cdk.Aspects.of(fargateStack).add(
+    new PermissionsBoundary(AWS_POLICY_PERM_BOUNDARY)
+  );
+  // cdk.Aspects.of(deploymentStack).add(
+  //   new PermissionsBoundary(AWS_POLICY_PERM_BOUNDARY)
+  // );
 }
 
 app.synth;
