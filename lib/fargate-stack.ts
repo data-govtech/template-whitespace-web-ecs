@@ -8,7 +8,6 @@ import * as elb from "@aws-cdk/aws-elasticloadbalancingv2";
 import * as route53 from "@aws-cdk/aws-route53";
 import * as route53_target from "@aws-cdk/aws-route53-targets";
 import * as cert_manager from "@aws-cdk/aws-certificatemanager";
-import { CONTAINER_NAME } from "./config";
 
 export interface FargateStackProps extends cdk.StackProps {
   readonly project_code: string;
@@ -202,7 +201,6 @@ export class FargateStack extends cdk.Stack {
       logging: ecs.LogDriver.awsLogs({
         streamPrefix: `${project_code}-fargate-logs`,
       }),
-      containerName: CONTAINER_NAME,
     });
 
     // Add port mapping

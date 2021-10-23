@@ -4,7 +4,6 @@ import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as kms from "@aws-cdk/aws-kms";
 import * as s3 from "@aws-cdk/aws-s3";
 import * as iam from "@aws-cdk/aws-iam";
-import { CONTAINER_NAME } from "./config";
 
 import {
   createSourceAction,
@@ -106,7 +105,7 @@ export class PipelineStack extends cdk.Stack {
               pipelineRole,
               {
                 repositoryUri: this.ecrRepo.repositoryUri,
-                containerName: CONTAINER_NAME,
+                containerName: "",
               }
             ),
           ],
