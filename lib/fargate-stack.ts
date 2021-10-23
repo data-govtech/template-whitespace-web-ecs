@@ -8,16 +8,15 @@ import * as elb from "@aws-cdk/aws-elasticloadbalancingv2";
 import * as route53 from "@aws-cdk/aws-route53";
 import * as route53_target from "@aws-cdk/aws-route53-targets";
 import * as cert_manager from "@aws-cdk/aws-certificatemanager";
-import { IRole } from "@aws-cdk/aws-iam";
 
 export interface FargateStackProps extends cdk.StackProps {
   readonly project_code: string;
-  // readonly container_image?: ecs.ContainerImage;
+  // network env
   readonly vpc_id: string;
   readonly public_subnet_ids: string[];
-  readonly route_table_id: string;
+  readonly public_route_table_id: string;
   readonly private_subnet_ids: string[];
-  // domain
+  // dns info
   readonly domain_name?: string;
   readonly hosted_zone_name?: string;
   readonly hosted_zone_id?: string;
@@ -47,7 +46,7 @@ export class FargateStack extends cdk.Stack {
       vpcId: props.vpc_id,
     });
 
-    const routeTableId = props.route_table_id;
+    const routeTableId = props.public_route_table_id;
     this.public_subnets = props.public_subnet_ids
       ? props.public_subnet_ids.map((subnetId) =>
           ec2.Subnet.fromSubnetAttributes(this, subnetId, {
@@ -65,26 +64,22 @@ export class FargateStack extends cdk.Stack {
         )
       : this.vpc.privateSubnets;
 
-    this.ecsCluster = new ecs.Cluster(this, "EcsCluster", {
-      vpc: this.vpc,
-      clusterName: `${props.project_code}-cluster`,
-    });
-
-    /* Container Task Role */
-    const containerTaskRole = this.createContainerTaskRole(
-      `${props.project_code}-task-role`
-    );
-
-    /* Agent Execution Role */
-    const agentExecutionRole = this.createAgentExecutionRole(
-      `${props.project_code}-execution-role`
-    );
-
-    /* Get existing ECR Repo */
+    /* Create FargateTaskDefinition */
+    // Get existing ECR Repo
     this.ecrRepo = ecr.Repository.fromRepositoryName(
       this,
       `${this.stackName}-EcrREpo`,
       cdk.Fn.importValue(`${this.project_code}-EcrRepositoryName`)
+    );
+
+    // Create Container Task Role
+    const containerTaskRole = this.createContainerTaskRole(
+      `${props.project_code}-task-role`
+    );
+
+    // Create Agent Execution Role
+    const agentExecutionRole = this.createAgentExecutionRole(
+      `${props.project_code}-execution-role`
     );
 
     this.fargateTask = this.createFargateTask(
@@ -94,16 +89,22 @@ export class FargateStack extends cdk.Stack {
       `${props.project_code}`
     );
 
-    /* Grant agentExecutionRole rights to access ecrRepo */
+    /* Create ECS Cluster and Service used to deploy ECS Task */
+
+    // Grant agentExecutionRole rights to access ecrRepo
     this.ecrRepo.grantPull(agentExecutionRole.grantPrincipal);
 
-    /* ECS Cluster and Service used to deploy ECS Task */
     // Security group to allow connections from the ALB to fargate containers
     this.fargateSecurityGroup = new ec2.SecurityGroup(
       this,
       "ecs-security-group",
       { vpc: this.vpc, allowAllOutbound: true }
     );
+
+    this.ecsCluster = new ecs.Cluster(this, "EcsCluster", {
+      vpc: this.vpc,
+      clusterName: `${props.project_code}-cluster`,
+    });
 
     this.fargateService = new ecs.FargateService(this, "fargate-service", {
       cluster: this.ecsCluster,
@@ -171,36 +172,9 @@ export class FargateStack extends cdk.Stack {
     return agentExecutionRole;
   }
 
-  /* Not working, fromRepositoryName doesn't flag problem if repo not exists 
-    Pending https://github.com/aws/aws-cdk/issues/8461
-  */
-  private getOrCreateEcrRepo(
-    stack: cdk.Stack,
-    ecr_repo_name: string
-  ): ecr.IRepository {
-    //Try to get existing the ECR repository
-    let ecrRepo: ecr.IRepository;
-    ecrRepo = ecr.Repository.fromRepositoryName(
-      stack,
-      `${stack.stackName}-EcrREpo`,
-      ecr_repo_name
-    );
-    console.log(ecrRepo.repositoryUri);
-
-    // If not found, create a new ecr Repository
-    if (!ecrRepo.repositoryUri) {
-      ecrRepo = new ecr.Repository(stack, `${stack.stackName}-EcrREpo`, {
-        repositoryName: ecr_repo_name,
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
-      });
-    }
-
-    return ecrRepo;
-  }
-
   private createFargateTask(
-    containerTaskRole: IRole,
-    agentExecutionRole: IRole,
+    containerTaskRole: iam.IRole,
+    agentExecutionRole: iam.IRole,
     ecrRepo: ecr.IRepository,
     project_code: string
   ) {
@@ -233,32 +207,6 @@ export class FargateStack extends cdk.Stack {
     container.addPortMappings({ containerPort: 80 });
 
     return fargateTask;
-  }
-
-  private createEcsPatternFargateService(
-    cluster: ecs.ICluster,
-    assetPath: string,
-    vpc: ec2.IVpc,
-    subnets: ec2.ISubnet[],
-    containerName: string
-  ) {
-    return new ecsPatterns.ApplicationLoadBalancedFargateService(
-      this,
-      "FargateService",
-      {
-        cluster: cluster,
-        taskImageOptions: {
-          // image: ecs.ContainerImage.fromAsset(assetPath),
-          image: this.ecrRepo
-            ? ecs.ContainerImage.fromEcrRepository(this.ecrRepo)
-            : ecs.ContainerImage.fromAsset(assetPath),
-          containerName: containerName,
-        },
-        vpc: vpc,
-        taskSubnets: { subnets: subnets },
-        publicLoadBalancer: true,
-      }
-    );
   }
 
   private addAutoScaleFargateService() {
@@ -333,7 +281,7 @@ export class FargateStack extends cdk.Stack {
       //   {
       //     domainName: props.domain_name,
       //     hostedZone: zone,
-      //     region: "ap-southeast-1",
+      //     region: cdk.Aws.REGION,
       //   }
       // );
 
@@ -398,7 +346,7 @@ export class FargateStack extends cdk.Stack {
   }
 
   private output() {
-    new cdk.CfnOutput(this, "fargate-cluster-security-group-id", {
+    new cdk.CfnOutput(this, "FargateClusterSecurityGroupId", {
       value: this.fargateSecurityGroup.securityGroupId,
       exportName: `${this.project_code}-FargateClusterSecurityGroupId`,
       description: "ID of Security Group used by Fargate Cluster",
@@ -437,5 +385,62 @@ export class FargateStack extends cdk.Stack {
       exportName: `${this.project_code}-FargateServiceArn`,
       description: "ARN of Fargate Service",
     });
+  }
+
+  /* ############################################################## */
+  /* Not working, Pending investigation */
+
+  /* fromRepositoryName doesn't flag problem if repo not exists 
+    Pending https://github.com/aws/aws-cdk/issues/8461
+  */
+  private getOrCreateEcrRepo(
+    stack: cdk.Stack,
+    ecr_repo_name: string
+  ): ecr.IRepository {
+    //Try to get existing the ECR repository
+    let ecrRepo: ecr.IRepository;
+    ecrRepo = ecr.Repository.fromRepositoryName(
+      stack,
+      `${stack.stackName}-EcrREpo`,
+      ecr_repo_name
+    );
+    console.log(ecrRepo.repositoryUri);
+
+    // If not found, create a new ecr Repository
+    if (!ecrRepo.repositoryUri) {
+      ecrRepo = new ecr.Repository(stack, `${stack.stackName}-EcrREpo`, {
+        repositoryName: ecr_repo_name,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      });
+    }
+
+    return ecrRepo;
+  }
+
+  /* Doens't work in AWS env with Permission Boundary */
+  private createEcsPatternFargateService(
+    cluster: ecs.ICluster,
+    assetPath: string,
+    vpc: ec2.IVpc,
+    subnets: ec2.ISubnet[],
+    containerName: string
+  ) {
+    return new ecsPatterns.ApplicationLoadBalancedFargateService(
+      this,
+      "FargateService",
+      {
+        cluster: cluster,
+        taskImageOptions: {
+          // image: ecs.ContainerImage.fromAsset(assetPath),
+          image: this.ecrRepo
+            ? ecs.ContainerImage.fromEcrRepository(this.ecrRepo)
+            : ecs.ContainerImage.fromAsset(assetPath),
+          containerName: containerName,
+        },
+        vpc: vpc,
+        taskSubnets: { subnets: subnets },
+        publicLoadBalancer: true,
+      }
+    );
   }
 }

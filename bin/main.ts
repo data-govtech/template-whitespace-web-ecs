@@ -9,6 +9,7 @@ import { DeploymentStack } from "../lib/deployment-stack";
 // Load .env file and construct tags
 require("dotenv").config();
 
+/* Read envrionment variables */
 const tags = {
   "Agency-Code": process.env.AGENCY_CODE! || "",
   "Project-Code": process.env.PROJECT_CODE! || "",
@@ -18,12 +19,7 @@ const tags = {
   "Project-Owner": process.env.PROJECT_OWNER! || "",
 };
 
-const project_code = process.env.PROJECT_CODE!;
-const AWS_POLICY_PERM_BOUNDARY = process.env.AWS_POLICY_PERM_BOUNDARY!;
-
-/* Envrionment variables */
 const props = {
-  // application props
   ecr_repo_uri: `${cdk.Aws.ACCOUNT_ID}.dkr.ecr.${
     cdk.Aws.REGION
   }.amazonaws.com/aws-cdk/${process.env.PROJECT_CODE!}`,
@@ -34,29 +30,32 @@ const props = {
   code_repo_branch: process.env.CODE_REPO_BRANCH!,
   code_repo_owner: process.env.CODE_REPO_OWNER!,
   code_repo_secret_var: process.env.CODE_REPO_SECRET_VAR!,
-
+  // cdk supporting resources
   codepipeline_role_arn: process.env.AWS_CODEPIPELINE_ROLE_ARN!,
   cloudformation_role_arn: process.env.AWS_CLOUDFORMATION_ROLE_ARN!,
   artifact_bucket_name: process.env.AWS_ARTIFACT_BUCKET_NAME!,
-
+  // network env
   vpc_id: process.env.VPC_ID!,
-  public_subnet_ids: process.env.SUBNET_IDS
-    ? process.env.SUBNET_IDS.split(",")
+  public_subnet_ids: process.env.PUBLIC_SUBNET_IDS
+    ? process.env.PUBLIC_SUBNET_IDS.split(",")
         .map((one) => one.trim())
         .filter((n) => n)
     : [],
-  route_table_id: process.env.ROUTE_TABLE_ID!,
+  public_route_table_id: process.env.PUBLIC_ROUTE_TABLE_ID!,
   private_subnet_ids: process.env.PRIVATE_SUBNET_IDS
     ? process.env.PRIVATE_SUBNET_IDS.split(",")
         .map((one) => one.trim())
         .filter((n) => n)
     : [],
-
+  // dns info
   domain_name: process.env.DOMAIN_NAME,
   hosted_zone_name: process.env.HOSTED_ZONE_NAME,
   hosted_zone_id: process.env.HOSTED_ZONE_ID,
   certificate_arn: process.env.CERTIFICATE_ARN,
 };
+
+const project_code = process.env.PROJECT_CODE!;
+const AWS_POLICY_PERM_BOUNDARY = process.env.AWS_POLICY_PERM_BOUNDARY!;
 
 const env = {
   region: process.env.CDK_DEFAULT_REGION,

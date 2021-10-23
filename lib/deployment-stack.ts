@@ -2,39 +2,46 @@ import * as cdk from "@aws-cdk/core";
 import * as ecs from "@aws-cdk/aws-ecs";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as ecr from "@aws-cdk/aws-ecr";
-import * as codebuild from "@aws-cdk/aws-codebuild";
 import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import * as kms from "@aws-cdk/aws-kms";
 import * as s3 from "@aws-cdk/aws-s3";
 import * as iam from "@aws-cdk/aws-iam";
-import { ManagedPolicy } from "@aws-cdk/aws-iam";
+import {
+  createDockerBuildAction,
+  createSourceAction,
+} from "../cdk-common/codepipeline-utils";
 
 export interface DeploymentStackProps extends cdk.StackProps {
-  // basic props
+  // basic props for cdk
   project_code: string;
   codepipeline_role_arn?: string;
   cloudformation_role_arn: string;
   artifact_bucket_name: string;
-  // repo
+  // code repo
   code_repo_name: string;
   code_repo_branch: string;
   code_repo_secret_var?: string;
   code_repo_owner?: string;
-  // others
+  // network env
   readonly vpc_id: string;
 }
 
 export class DeploymentStack extends cdk.Stack {
+  readonly project_code: string;
   public readonly pipeline: codepipeline.Pipeline;
   public readonly ecrRepo: ecr.IRepository;
   public importedFargateService: ecs.FargateService;
-  readonly project_code: string;
+  containerName: string;
 
   constructor(scope: cdk.Construct, id: string, props: DeploymentStackProps) {
     super(scope, id, props);
 
     this.project_code = props.project_code;
+
+    this.containerName = cdk.Fn.importValue(
+      `${this.project_code}-FargateClusterContainerName`
+    );
 
     /* Get existing ECR Repo */
     this.ecrRepo = ecr.Repository.fromRepositoryName(
@@ -63,9 +70,6 @@ export class DeploymentStack extends cdk.Stack {
 
     /* Use existing S3 bucket */
     const artifactBucket = this.getArtifactBucket({ ...props });
-    const containerName = cdk.Fn.importValue(
-      `${this.project_code}-FargateClusterContainerName`
-    );
 
     // const repositoryUri = `${cdk.Aws.ACCOUNT_ID}.dkr.ecr.${cdk.Aws.REGION}.amazonaws.com/aws-cdk/${props.project_code}`;
     return new codepipeline.Pipeline(scope, `${props.project_code}-pipeline`, {
@@ -75,18 +79,19 @@ export class DeploymentStack extends cdk.Stack {
       stages: [
         {
           stageName: "Source",
-          actions: [this.createSourceAction(sourceOutput, { ...props })],
+          actions: [createSourceAction(sourceOutput, { ...props })],
         },
         {
           stageName: "Build",
           actions: [
-            this.createDockerBuildAction(
+            createDockerBuildAction(
+              this,
               sourceOutput,
               dockerBuildOutput,
               pipelineRole,
               {
                 repositoryUri: this.ecrRepo.repositoryUri,
-                containerName: containerName,
+                containerName: this.containerName,
               }
             ),
           ],
@@ -123,62 +128,62 @@ export class DeploymentStack extends cdk.Stack {
     });
   }
 
-  private createSourceAction(
-    output: codepipeline.Artifact,
-    props: {
-      code_repo_name: string;
-      code_repo_branch: string;
-      code_repo_owner?: string;
-      code_repo_secret_var?: string;
-    }
-  ): codepipeline_actions.GitHubSourceAction {
-    const githubAction = new codepipeline_actions.GitHubSourceAction({
-      actionName: "Github_Source",
-      repo: props.code_repo_name,
-      branch: props.code_repo_branch,
-      owner: props.code_repo_owner!,
-      oauthToken: cdk.SecretValue.secretsManager(props.code_repo_secret_var!),
-      output: output,
-    });
-    return githubAction;
-  }
+  // private createSourceAction(
+  //   output: codepipeline.Artifact,
+  //   props: {
+  //     code_repo_name: string;
+  //     code_repo_branch: string;
+  //     code_repo_owner?: string;
+  //     code_repo_secret_var?: string;
+  //   }
+  // ): codepipeline_actions.GitHubSourceAction {
+  //   const githubAction = new codepipeline_actions.GitHubSourceAction({
+  //     actionName: "Github_Source",
+  //     repo: props.code_repo_name,
+  //     branch: props.code_repo_branch,
+  //     owner: props.code_repo_owner!,
+  //     oauthToken: cdk.SecretValue.secretsManager(props.code_repo_secret_var!),
+  //     output: output,
+  //   });
+  //   return githubAction;
+  // }
 
-  private createDockerBuildAction(
-    input: codepipeline.Artifact,
-    output: codepipeline.Artifact,
-    role: iam.IRole,
-    props: { repositoryUri: string; containerName: string },
-    runOrder: number = 1
-  ): codepipeline_actions.CodeBuildAction {
-    const project = new codebuild.PipelineProject(this, "CodeBuildProject", {
-      environment: {
-        buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_3,
-        privileged: true,
-      },
-      buildSpec: this.createBuildSpecFromFile("./buildspec.yml"),
-      environmentVariables: {
-        REPOSITORY_URI: { value: props.repositoryUri },
-        CONTAINER_NAME: { value: props.containerName },
-      },
-    });
-    // this.ecrRepo.grantPullPush(project.grantPrincipal);
-    project.role?.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
-        "AmazonEC2ContainerRegistryPowerUser"
-      )
-    );
+  // private createDockerBuildAction(
+  //   input: codepipeline.Artifact,
+  //   output: codepipeline.Artifact,
+  //   role: iam.IRole,
+  //   props: { repositoryUri: string; containerName: string },
+  //   runOrder: number = 1
+  // ): codepipeline_actions.CodeBuildAction {
+  //   const project = new codebuild.PipelineProject(this, "CodeBuildProject", {
+  //     environment: {
+  //       buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_3,
+  //       privileged: true,
+  //     },
+  //     buildSpec: this.createBuildSpecFromFile("./buildspec.yml"),
+  //     environmentVariables: {
+  //       REPOSITORY_URI: { value: props.repositoryUri },
+  //       CONTAINER_NAME: { value: props.containerName },
+  //     },
+  //   });
+  //   // this.ecrRepo.grantPullPush(project.grantPrincipal);
+  //   project.role?.addManagedPolicy(
+  //     iam.ManagedPolicy.fromAwsManagedPolicyName(
+  //       "AmazonEC2ContainerRegistryPowerUser"
+  //     )
+  //   );
 
-    const buildAction = new codepipeline_actions.CodeBuildAction({
-      actionName: "DockerBuild_Action",
-      project: project,
-      input: input,
-      outputs: [output],
-      role: role,
-      runOrder: runOrder,
-    });
+  //   const buildAction = new codepipeline_actions.CodeBuildAction({
+  //     actionName: "DockerBuild_Action",
+  //     project: project,
+  //     input: input,
+  //     outputs: [output],
+  //     role: role,
+  //     runOrder: runOrder,
+  //   });
 
-    return buildAction;
-  }
+  //   return buildAction;
+  // }
 
   private createEcsDeployAction(
     input: codepipeline.Artifact,
@@ -241,9 +246,9 @@ export class DeploymentStack extends cdk.Stack {
     return ecsDeployAction;
   }
 
-  private createBuildSpecFromFile(filepath: string) {
-    return codebuild.BuildSpec.fromSourceFilename(filepath);
-  }
+  // private createBuildSpecFromFile(filepath: string) {
+  //   return codebuild.BuildSpec.fromSourceFilename(filepath);
+  // }
 
   private output() {
     new cdk.CfnOutput(this, "DeploymentPipelineName", {

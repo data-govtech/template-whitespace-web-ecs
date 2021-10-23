@@ -1,10 +1,8 @@
 import * as codebuild from "@aws-cdk/aws-codebuild";
 import * as cdk from "@aws-cdk/core";
-import * as ecs from "@aws-cdk/aws-ecs";
 import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import { IBaseService, IService } from "@aws-cdk/aws-ecs";
-import * as iam from "@aws-cdk/aws-iam";
 
 export const createCdkBuildProject = (scope: cdk.Construct, id: string) =>
   new codebuild.PipelineProject(scope, `${id}`, {
