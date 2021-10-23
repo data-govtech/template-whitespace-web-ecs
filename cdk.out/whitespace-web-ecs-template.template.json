@@ -666,7 +666,7 @@
             {
               "Name": "CONTAINER_NAME",
               "Type": "PLAINTEXT",
-              "Value": ""
+              "Value": "whitespace-web-ecs-template-ContainerName"
             }
           ],
           "Image": "aws/codebuild/amazonlinux2-x86_64-standard:3.0",
