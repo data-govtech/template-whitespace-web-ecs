@@ -16,7 +16,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Whitespace: Enjoy Saturday!
+          Whitespace: Enjoy Weekend!
         </a>
       </header>
     </div>
