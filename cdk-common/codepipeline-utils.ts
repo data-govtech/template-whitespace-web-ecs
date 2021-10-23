@@ -5,6 +5,10 @@ import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import * as iam from "@aws-cdk/aws-iam";
 import { createCdkBuildProject } from "../cdk-common/codebuild-utils";
 
+/*
+Functions which creates Action for CodePipeline
+*/
+
 export const createSourceAction = (
   output: codepipeline.Artifact,
   props: {

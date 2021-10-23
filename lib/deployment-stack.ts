@@ -128,63 +128,6 @@ export class DeploymentStack extends cdk.Stack {
     });
   }
 
-  // private createSourceAction(
-  //   output: codepipeline.Artifact,
-  //   props: {
-  //     code_repo_name: string;
-  //     code_repo_branch: string;
-  //     code_repo_owner?: string;
-  //     code_repo_secret_var?: string;
-  //   }
-  // ): codepipeline_actions.GitHubSourceAction {
-  //   const githubAction = new codepipeline_actions.GitHubSourceAction({
-  //     actionName: "Github_Source",
-  //     repo: props.code_repo_name,
-  //     branch: props.code_repo_branch,
-  //     owner: props.code_repo_owner!,
-  //     oauthToken: cdk.SecretValue.secretsManager(props.code_repo_secret_var!),
-  //     output: output,
-  //   });
-  //   return githubAction;
-  // }
-
-  // private createDockerBuildAction(
-  //   input: codepipeline.Artifact,
-  //   output: codepipeline.Artifact,
-  //   role: iam.IRole,
-  //   props: { repositoryUri: string; containerName: string },
-  //   runOrder: number = 1
-  // ): codepipeline_actions.CodeBuildAction {
-  //   const project = new codebuild.PipelineProject(this, "CodeBuildProject", {
-  //     environment: {
-  //       buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_3,
-  //       privileged: true,
-  //     },
-  //     buildSpec: this.createBuildSpecFromFile("./buildspec.yml"),
-  //     environmentVariables: {
-  //       REPOSITORY_URI: { value: props.repositoryUri },
-  //       CONTAINER_NAME: { value: props.containerName },
-  //     },
-  //   });
-  //   // this.ecrRepo.grantPullPush(project.grantPrincipal);
-  //   project.role?.addManagedPolicy(
-  //     iam.ManagedPolicy.fromAwsManagedPolicyName(
-  //       "AmazonEC2ContainerRegistryPowerUser"
-  //     )
-  //   );
-
-  //   const buildAction = new codepipeline_actions.CodeBuildAction({
-  //     actionName: "DockerBuild_Action",
-  //     project: project,
-  //     input: input,
-  //     outputs: [output],
-  //     role: role,
-  //     runOrder: runOrder,
-  //   });
-
-  //   return buildAction;
-  // }
-
   private createEcsDeployAction(
     input: codepipeline.Artifact,
     role: iam.IRole,

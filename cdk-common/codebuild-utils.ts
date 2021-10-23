@@ -4,6 +4,10 @@ import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as codepipeline_actions from "@aws-cdk/aws-codepipeline-actions";
 import { IBaseService, IService } from "@aws-cdk/aws-ecs";
 
+/*
+Functions which creates BuildProject for Actions in CodePipeline
+*/
+
 export const createCdkBuildProject = (scope: cdk.Construct, id: string) =>
   new codebuild.PipelineProject(scope, `${id}`, {
     environment: {

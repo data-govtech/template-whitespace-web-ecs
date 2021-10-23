@@ -1181,6 +1181,9 @@
     "PipelineName": {
       "Value": {
         "Ref": "whitespacewebecstemplatepipeline23D2CF22"
+      },
+      "Export": {
+        "Name": "whitespace-web-ecs-template-PipelineName"
       }
     }
   },

@@ -1,14 +1,5 @@
 {
   "Resources": {
-    "EcsCluster97242B84": {
-      "Type": "AWS::ECS::Cluster",
-      "Properties": {
-        "ClusterName": "whitespace-web-ecs-template-cluster"
-      },
-      "Metadata": {
-        "aws:cdk:path": "whitespace-web-ecs-template-fargate/EcsCluster/Resource"
-      }
-    },
     "taskrole5938D619": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -347,6 +338,15 @@
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template-fargate/ecs-security-group/from whitespacewebecstemplatefargatealbsecuritygroup456E0808:ALL PORTS"
+      }
+    },
+    "EcsCluster97242B84": {
+      "Type": "AWS::ECS::Cluster",
+      "Properties": {
+        "ClusterName": "whitespace-web-ecs-template-cluster"
+      },
+      "Metadata": {
+        "aws:cdk:path": "whitespace-web-ecs-template-fargate/EcsCluster/Resource"
       }
     },
     "fargateserviceService16837280": {
@@ -696,7 +696,7 @@
     "CDKMetadata": {
       "Type": "AWS::CDK::Metadata",
       "Properties": {
-        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31S227CMAz9Ft5DWJk27XGju2gS0qaWHwipqQIhqRKHCVX99zkNhcKkvcTH59iJL8l4Nn/id5Nn8eOnstrNWmkd8LZEIXesAG+Dk8DyjfkK2ARkuTUeXZAYuUHvWExvQXre5jp4BBflAb4LVwuElfC7V9goo1BZEwNuGWtQKANuxJ1yS3AHlQoZYCmFFmvdX5vbYLBjSux5W1jdx/X222olj9FNqGMgHS+gsV6hdceF8MC0ranwpa0/nA1NDB5wDJ/TNEAGp/B41v8nPk3twPs//FtP07CahmoRsT8R0HpqRJmanjl35GroB3zDJLNytBtKKFPepcUrgkrXwqOS2opqTdcYSdqBunm5PL8kbdFraWNX/jhO0SLNKWbAIz0Vdp7GyO0YnQgP9/RuAfS5qvRxIioBu65jxlbAt352yB55lvFssvVKTR1tVO2BF8n+AldkYqCpAgAA"
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/31S227CMAz9Ft5DWJk27XGDXTQJaVPLD4RgqkCIq8RhQlX/fU5LoTBpL7F9fDs5SSaz6ZO8Gz2rnzDW692k1uhB1gUpvRM5BIxeg5hv3FekKpKYowvko6aE9flGpPYatJc5VBgMoT/OVABh1F7WOdp2RGu/0Rp9TGHnNQJ0kPW78qUiWKqwe4WNcYYMulR1i6AjZRz4IWZjIPCpundP4wrwB9Px791CK6tWtt00x+ioERZLZrDA8sNjrFJx7ydyU1YDdPSGjuf8/8CnKz2E8Ad/a2EWq6r45ipxV5EwMCPjSl5zpuZLaAW+QTqz9Pw23FB0fRdBrwCmblUgoy2q9YrHOM25A9/m5bJ+wblZm+vku4qHdYZVdaea3h/kO2JnNQZhI/gkeLjnvTnw51p3Hyd5BVDTNMLhGuQ2TA7Zo8wymY22wZix56cxe5B5Z38BA8zMkKkCAAA="
       },
       "Metadata": {
         "aws:cdk:path": "whitespace-web-ecs-template-fargate/CDKMetadata/Default"
@@ -704,7 +704,7 @@
     }
   },
   "Outputs": {
-    "fargateclustersecuritygroupid": {
+    "FargateClusterSecurityGroupId": {
       "Description": "ID of Security Group used by Fargate Cluster",
       "Value": {
         "Fn::GetAtt": [
