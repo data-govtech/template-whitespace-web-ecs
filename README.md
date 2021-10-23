@@ -1,4 +1,4 @@
-# Whitespace Web ECR
+# CDK Template - Deploy Web App using ECS
 
 This project uses AWS CDK to deploy ReactJS website on Fargate Cluster. 
 
@@ -6,64 +6,67 @@ Tags: `aws-cdk`,`aws-fargate`, `aws-alb`, `aws-codepipeline`, `aws-ecr`, `reactj
 
 <img src="https://raw.githubusercontent.com/qinjie/picgo-images/main/image-20210913110731954.png" alt="image-20210913110731954" style="zoom:67%;" />
 
-Reference:
-https://blog.petrabarus.net/2020/03/23/building-ci-cd-pipeline-using-aws-codepipeline-aws-codebuild-amazon-ecr-amazon-ecs-with-aws-cdk/
+How to use this template project?
+- Move web project into `frontend` folder and add some files from this template project.
+- Copy CDK project (other than `frontend` folder) and update configurations in CDK project.
+
+## How to use this template project?
+
+### Setup Web Project
+
+- In website project, create a new folder `frontend`; Move whole website project, excluding `.git` folder, into it. 
+- From template project, copy following files/folders into `frontend` folder: `nginx/`, `.dockerignore`, `Dockerfile`.
+- Update `frontend/Dockerfile` accordingly, which builds website into a Docker image.
+
+#### Test in Local Server
+
+In the project directory, you can run:
+
+- `yarn install` install packages
+- `yarn run build` build static files for deployment
+- `yarn start ` start project
 
 
+#### Test using Docker
 
-## Roles
+The `Dockerfile` is provided in project directory to build the project into a docker image. 
 
-
-
-Note: If the CodeBuild fails at the login-AWS command in buildspec.yml, it usually indicates an unauthorized user. To fix this, we need to grant CodeBuild role be able to talk to ECR. To do this: Go to IAM and then attach a AmazonEC2ContainerRegistryPowerUser policy to your CodeBuild role.
-
-
-
-## Test
-
-
-
-### Test CodeBuild Locally
-
-Reference: https://docs.aws.amazon.com/codebuild/latest/userguide/use-codebuild-agent.html
-
-* Following above guide to setup build image in Docker. Use AWS Linux 2 image instead of Ubuntu.
-
+* Build docker image.
   ```bash
-  cd ./aws-codebuild-docker-images/al2/x86_64/standard/3.0
-  docker build -t aws/codebuild/standard:3.0 .
+  docker build -t "my-template" .
   ```
-
-* Download the `codebuild_build.sh` script to the same folder as `buildspec.yml`.
-
+* Run the image in a container. 
   ```bash
-  wget https://raw.githubusercontent.com/aws/aws-codebuild-docker-images/master/local_builds/codebuild_build.sh
-  chmod +x codebuild_build.sh
+  docker run -p 8080:80 --name my_container my-template
   ```
+* Test the site at [http://localhost:8080/](
 
-* Start Docker Desktop. Run following command,
+### Copy CDK Project
 
-  ```bash
-  ./codebuild_build.sh -i aws/codebuild/standard:3.0 -a <output directory>
-  ```
+- From template project, copy all except following folders into website project folder.
+    * `.git`, `cdk.out`, `frontend`, `node_modules`
+- In ewbsite project folder, edit `package.json` file.
+    * Update project name `"name": "PROJECT-NAME-HERE"`
+- Update `.env` file accordingly
+    * Especially `PROJECT_CODE`, `CODE_REPO_NAME`, `CODE_REPO_BRANCH`, and other AWS environment related settings
 
-   
+### Run CDK Project
+- Run `npm install` to install libraries
+- Run `cdk synth --profile capdev` to generate CloudFormation template files
 
-## Deployment
+## Deploy to CloudFormation
 
+### Deployment by CDK CLI
 
-
-### Development
-
+* Run `npm install` to install required libraries.
 * Run `cdk list` to list all stacks.
 * Run `cdk deploy <stack-name>` to deploy a stack. You can deploy `whitespace-app-ecr-.template.json` which will deploy both stacks at the same time.
 
 
+### Deployment by CloudFormation
 
-### Production
+* Run `npm install` to install required libraries.
+* Run `cdk synth` to generate latest copy of `*.template.json` files. You are not using default AWS profile, specify the profile to use in the command, e.g. `cdksynth --profile capdev`.
+* Deploy `cdk.out\project-pidove.template.json` file in CloudFormation.
 
-* Run `cdk synth` to generate latest copy of `*.template.json` files.
-* Commit code into GitHub.
-* Upload `*.template.json` files to a temp S3 bucket.
-* Deploy `whitespace-app-ecr-webapp.template.json` file in CloudFormation.
-* Deploy `whitespace-app-ecr.template.json` file in CloudFormation.
+
