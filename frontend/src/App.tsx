@@ -16,7 +16,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Whitespace: Last Mile on DEV!
+          Whitespace: Good Morning!
         </a>
       </header>
     </div>
